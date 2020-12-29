@@ -1,0 +1,14 @@
+# Advent of Code 2016
+
+Sharpening my Haskell skills with some christmas fun
+
+Progress:
+```
+ 1 **
+ 2 **
+ 3 **
+ 4 **
+ 5 **
+ 6 **
+ 7 *
+```
