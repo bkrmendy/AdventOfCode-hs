@@ -1,4 +1,4 @@
-.stack-work/*
-.idea/*
+.stack-work/
+.idea/
 out/
 stack.yaml.lock
