@@ -1,4 +1,4 @@
-{-# PYTHON
+{-# python
 
 import hashlib as hl
 

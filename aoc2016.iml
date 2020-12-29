@@ -12,7 +12,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/daysix" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/dayseven" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.stack-work" />
     </content>
     <orderEntry type="inheritedJdk" />

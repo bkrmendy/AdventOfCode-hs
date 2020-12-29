@@ -45,8 +45,8 @@ rotate :: Int -> Char -> Char
 rotate n c =
   let num = ord c
       base = num - 97
-      incrd = (base + n) `mod` 26
-      re = incrd + 97
+      incremented = (base + n) `mod` 26
+      re = incremented + 97
   in chr re
 
 instance Challenge [Room] where

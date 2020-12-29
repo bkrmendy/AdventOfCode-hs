@@ -1,13 +1,13 @@
 module Main where
 
 import Challenge
-import DayOne
+import DaySeven
 
 runChallenge :: IO ()
 runChallenge = do
-  input <- readFile "/Users/prezi/IdeaProjects/aoc2016/src/challenges/dayone/input.txt"
-  print $ partOne (parse input :: Instructions)
-  print $ partTwo (parse input :: Instructions)
+  input <- readFile "/Users/prezi/IdeaProjects/aoc2016/src/challenges/dayseven/input.txt"
+  print $ partOne (parse input :: [IPv7])
+  print $ partTwo (parse input :: [IPv7])
 
 main :: IO ()
 main = runChallenge
