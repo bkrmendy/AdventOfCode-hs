@@ -26,10 +26,11 @@ rotateColumn column by display = map transform (zip display [0..])
 rotateRow :: Int -> Int -> Display ->  Display
 rotateRow row by display = map transform (zip display [0..])
   where
+    shift = (width - by) `mod` width
     transform :: (String, Int) -> String
     transform (r, i)
-      | i == row = drop (by - 1) r ++ take (by - 1) r
-      | otherwise = r
+       | i == row = drop shift r ++ take shift r
+       | otherwise = r
 
 parseInt :: Parsec.Parsec String () Int
 parseInt = read <$> Parsec.many1 Parsec.digit
@@ -70,4 +71,4 @@ runCommands = foldl (flip ($))
 instance Challenge [Command] where
   parse = parseCommands
   partOne = show . nPixelsLit . runCommands mkDisplay
-  partTwo _ = "Unknown"
+  partTwo = unlines . runCommands mkDisplay
