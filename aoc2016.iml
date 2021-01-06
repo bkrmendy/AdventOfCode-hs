@@ -13,6 +13,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/dayseven" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/dayeight" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/daynine" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/challenges/dayten" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.stack-work" />
     </content>
