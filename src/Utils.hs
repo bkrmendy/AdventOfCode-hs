@@ -3,6 +3,8 @@ module Utils where
 import Text.Parsec as Parsec
 import qualified Data.Map as Map
 import Control.Monad (zipWithM)
+import Data.Char (digitToInt)
+import Data.List (foldl')
 
 -- | LISTS
 transpose :: [[a]] -> [[a]]
@@ -37,6 +39,10 @@ parseLines parser = parseI
       case Parsec.parse parser "" input of
         Left err -> error $ show err
         Right commands -> commands
+
+-- ^ adapted from https://stackoverflow.com/a/26961027
+fromBinaryString :: String -> Int
+fromBinaryString = foldl' (\acc x -> acc * 2 + digitToInt x) 0
 
 -- | UNWRAP
 
