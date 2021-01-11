@@ -34,6 +34,11 @@ parseLines parser = parseI
         Left err -> error $ show err
         Right commands -> commands
 
-
 unsafeGet :: (Ord k) => k -> Map.Map k a -> a
 unsafeGet = Map.findWithDefault undefined
+
+fromMaybe :: (Maybe a) -> a
+fromMaybe m =
+  case m of
+    Nothing -> error "Maybe contains no value!"
+    Just something -> something

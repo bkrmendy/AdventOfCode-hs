@@ -37,6 +37,7 @@ library
       DayNine
       DayTen
       DayTwelve
+      DayThirteen
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
@@ -52,6 +53,7 @@ library
       src/challenges/daynine
       src/challenges/dayten
       src/challenges/daytwelve
+      src/challenges/daythirteen
   build-depends:
       base >=4.7 && <5
       , text
