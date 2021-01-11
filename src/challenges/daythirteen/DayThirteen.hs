@@ -39,7 +39,7 @@ solve target office frontier number =
       in solve target office' frontier' number
 
 partOne' :: DesignersFavouriteNumber -> Int
-partOne' = fromMaybe . solve target office frontier . unDesignersFavouriteNumber
+partOne' = unsafeFromMaybe . solve target office frontier . unDesignersFavouriteNumber
   where
     target = (31, 39)
     office = Map.fromList [((1, 1), 0)]
