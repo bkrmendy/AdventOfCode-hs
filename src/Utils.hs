@@ -2,7 +2,9 @@ module Utils where
 
 import Text.Parsec as Parsec
 import qualified Data.Map as Map
+import Control.Monad (zipWithM)
 
+-- | LISTS
 transpose :: [[a]] -> [[a]]
 transpose ([]:_) = []
 transpose x = map head x : transpose (map tail x)
@@ -17,6 +19,8 @@ replace index element = zipWith (curry transform) [0 ..]
 
 concatRep :: Int -> String -> String
 concatRep n = concat . replicate n
+
+-- | PARSING
 
 -- ^ https://www.schoolofhaskell.com/user/stevely/parsing-floats-with-parsec#parsing-integers-with-leading-sign
 int :: Parsec.Parsec String () Int
@@ -34,11 +38,37 @@ parseLines parser = parseI
         Left err -> error $ show err
         Right commands -> commands
 
+-- | UNWRAP
+
 unsafeGet :: (Ord k) => k -> Map.Map k a -> a
 unsafeGet = Map.findWithDefault undefined
 
-fromMaybe :: (Maybe a) -> a
-fromMaybe m =
+unsafeFromMaybe :: Maybe a -> a
+unsafeFromMaybe m =
   case m of
     Nothing -> error "Maybe contains no value!"
     Just something -> something
+
+-- | CHINESE REMAINDER THEOREM
+-- ^ adapted from https://rosettacode.org/wiki/Chinese_remainder_theorem#Haskell
+chineseRemainder :: [Integer] -> [Integer] -> Maybe Integer
+chineseRemainder residues modulii =
+  zipWithM modInv crtModulii modulii >>=
+  (Just . (`mod` modPI) . sum . zipWith (*) crtModulii . zipWith (*) residues)
+  where
+    modPI = product modulii
+    crtModulii = (modPI `div`) <$> modulii
+
+    egcd :: Integer -> Integer -> (Integer, Integer)
+    egcd _ 0 = (1, 0)
+    egcd a b = (t, s - q * t)
+      where
+        (s, t) = egcd b r
+        (q, r) = a `quotRem` b
+
+    modInv :: Integer -> Integer -> Maybe Integer
+    modInv a b =
+      case egcd a b of
+        (x, y)
+          | a * x + b * y == 1 -> Just x
+          | otherwise -> Nothing

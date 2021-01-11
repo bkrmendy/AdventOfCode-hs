@@ -39,6 +39,7 @@ library
       DayTwelve
       DayThirteen
       DayFourteen
+      DayFifteen
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
@@ -56,6 +57,7 @@ library
       src/challenges/daytwelve
       src/challenges/daythirteen
       src/challenges/dayfourteen
+      src/challenges/dayfifteen
   build-depends:
       base >=4.7 && <5
       , text
@@ -67,6 +69,7 @@ library
       , utf8-string
       , word8
       , base16-bytestring
+      , arithmoi
   default-language: Haskell2010
 
 executable aoc2016-exe
