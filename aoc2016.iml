@@ -20,6 +20,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/dayfourteen" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/dayfifteen" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/daysixteen" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/challenges/dayseventeen" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.stack-work" />
     </content>
     <orderEntry type="inheritedJdk" />

@@ -1,12 +1,12 @@
 module Main where
 
 import Challenge
-import DaySixteen
+import DaySeventeen
 
 runChallenge :: IO ()
 runChallenge = do
-  input <- readFile "/Users/prezi/IdeaProjects/aoc2016/src/challenges/daysixteen/input.txt"
-  let parsed = parse input :: Binary
+  input <- readFile "/Users/prezi/IdeaProjects/aoc2016/src/challenges/dayseventeen/input.txt"
+  let parsed = parse input :: Passcode
   putStrLn $ partOne parsed
   putStrLn $ partTwo parsed
 
