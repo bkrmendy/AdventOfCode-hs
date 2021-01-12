@@ -5,6 +5,10 @@ import qualified Data.Map as Map
 import Control.Monad (zipWithM)
 import Data.Char (digitToInt)
 import Data.List (foldl')
+import Data.Word8
+import qualified Data.ByteString as Bs
+import qualified Data.ByteString.Base16 as B16
+import qualified Crypto.Hash.MD5 as MD5
 
 -- | LISTS
 transpose :: [[a]] -> [[a]]
@@ -54,6 +58,10 @@ unsafeFromMaybe m =
   case m of
     Nothing -> error "Maybe contains no value!"
     Just something -> something
+    
+-- | HASH
+hash :: Bs.ByteString -> Bs.ByteString
+hash = Bs.pack . map toLower . Bs.unpack . B16.encode . MD5.hash
 
 -- | CHINESE REMAINDER THEOREM
 -- ^ adapted from https://rosettacode.org/wiki/Chinese_remainder_theorem#Haskell

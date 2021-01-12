@@ -3,14 +3,10 @@ module DayFourteen where
 import Challenge
 import Data.Word8
 import qualified Data.ByteString as Bs
-import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.UTF8 as BLU
-import qualified Crypto.Hash.MD5 as MD5
+import Utils
 
 newtype Salt = Salt { unSalt :: Bs.ByteString }
-
-hash :: Bs.ByteString -> Bs.ByteString
-hash = Bs.pack . map toLower . Bs.unpack . B16.encode . MD5.hash
 
 keyStretchHash :: Int -> Bs.ByteString -> Bs.ByteString
 keyStretchHash 0 str = str
