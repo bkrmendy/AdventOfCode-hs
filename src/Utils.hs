@@ -35,6 +35,9 @@ int = rd <$> (plus <|> minus <|> number)
         plus   = char '+' *> number
         minus  = (:) <$> char '-' <*> number
         number = many1 digit
+        
+integer :: Parsec.Parsec String () Integer
+integer = toInteger <$> int        
 
 parseLines :: Parsec.Parsec String () a -> String -> a
 parseLines parser = parseI
@@ -62,6 +65,10 @@ unsafeFromMaybe m =
 -- | HASH
 hash :: Bs.ByteString -> Bs.ByteString
 hash = Bs.pack . map toLower . Bs.unpack . B16.encode . MD5.hash
+
+-- | Combinator
+s :: (t1 -> t2 -> t3) -> (t1 -> t2) -> t1 -> t3
+s f g x = f x (g x)
 
 -- | CHINESE REMAINDER THEOREM
 -- ^ adapted from https://rosettacode.org/wiki/Chinese_remainder_theorem#Haskell
