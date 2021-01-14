@@ -80,9 +80,7 @@ hash = Bs.pack . map toLower . Bs.unpack . B16.encode . MD5.hash
 s :: (t1 -> t2 -> t3) -> (t1 -> t2) -> t1 -> t3
 s f g x = f x (g x)
 
-k :: a -> b -> a
-k x y = x
-
+ 
 -- | CHINESE REMAINDER THEOREM
 -- ^ adapted from https://rosettacode.org/wiki/Chinese_remainder_theorem#Haskell
 chineseRemainder :: [Integer] -> [Integer] -> Maybe Integer
@@ -106,3 +104,7 @@ chineseRemainder residues modulii =
         (x, y)
           | a * x + b * y == 1 -> Just x
           | otherwise -> Nothing
+
+factorial :: (Integral a) => a -> a
+factorial 0 = 1
+factorial n = n * factorial (pred n)

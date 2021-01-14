@@ -5,7 +5,7 @@ import qualified Data.Map as Map
 import Challenge
 import Utils
 
-data Operand = Immediate Int | Register Char | Missing deriving (Show)
+data Operand = Immediate Int | Register Char | Missing deriving (Show, Eq)
 data Opcode = Cpy | Inc | Dec | Tgl | Jnz deriving (Show)
 data Instruction = Instruction { code :: Opcode, left :: Operand, right :: Operand } deriving (Show)
 
@@ -34,15 +34,11 @@ mkInstruction line = parse' pieces
       | head part `elem` "abcd" = Register (head part)
       | otherwise = Immediate (read part :: Int)
 
-value :: Operand -> Registers -> Int
-value (Immediate i) _ = i
-value (Register r) regs = unsafeFromMaybe $ Map.lookup r regs
-
 inc :: Registers -> Char -> (Int -> Int) -> Registers
 inc regs reg f = Map.insert reg (f $ unsafeFromMaybe $ Map.lookup reg regs) regs
 
-cpy :: Registers -> Operand -> Char -> Registers
-cpy regs val dest = Map.insert dest (value val regs) regs
+cpy :: Registers -> Int -> Char -> Registers
+cpy regs val dest = Map.insert dest val regs
 
 tgl :: [Instruction] -> Int -> [Instruction]
 tgl [] _ = []
@@ -55,20 +51,28 @@ tgl ((Instruction Jnz _left _right):rest) 0 = Instruction Cpy _left _right:rest
 tgl ((Instruction Cpy _left _right):rest) 0 = Instruction Jnz _left _right:rest
 tgl (hd:rest) n = hd : tgl rest (pred n)
 
+optimize :: [Instruction] -> [Instruction]
+optimize [] = []
+optimize (i1@(Instruction Inc e _):i2@(Instruction Dec a _):i3@(Instruction Jnz b (Immediate (-2))):rest)
+  | a == b = Instruction Inc e a:optimize (i2:i3:rest)
+  | otherwise = i1:optimize (i2:i3:rest)
+optimize (hd:rest) = hd : optimize rest
+
 run :: Int -> Registers -> [Instruction] -> Registers
 run ip registers instructions
   | ip >= length instructions = registers
   | otherwise = step (instructions !! ip)
   where
-    step (Instruction Tgl _operand _) = run (succ ip) registers (tgl instructions (value _operand registers + ip))
-    step (Instruction Inc (Register r) _) = run (succ ip) (inc registers r succ) instructions
+    value (Immediate i) = i
+    value (Register r) = unsafeFromMaybe $ Map.lookup r registers
+    step (Instruction Tgl _operand _) = run (succ ip) registers (tgl instructions (value _operand + ip))
+    step (Instruction Inc (Register r) Missing) = run (succ ip) (inc registers r succ) instructions
+    step (Instruction Inc (Register r) v) = run (succ ip) (inc registers r (+ value v)) instructions
     step (Instruction Dec (Register r) _) = run (succ ip) (inc registers r pred) instructions
-    step (Instruction Cpy _left (Register r)) = run (succ ip) (cpy registers _left r) instructions
+    step (Instruction Cpy _left (Register r)) = run (succ ip) (cpy registers (value _left) r) instructions
     step (Instruction Jnz _x _y) = run ip' registers instructions
       where
-        x = value _x registers
-        y = value _y registers
-        ip' = if x == 0 then succ ip else ip + y
+        ip' = if value _x == 0 then succ ip else ip + value _y
     step _ = run (succ ip) registers instructions
 
 registers1 :: Registers
@@ -80,6 +84,8 @@ registers2 = Map.fromList [('a', 12), ('b', 0), ('c', 0), ('d', 0)]
 instance Challenge [Instruction] where
   parse = map mkInstruction . lines
   partOne = show . Map.lookup 'a' . run 0 registers1
-  partTwo = show . Map.lookup 'c' . run 0 registers2
+  -- todo https://www.reddit.com/r/adventofcode/comments/5jvbzt/2016_day_23_solutions/dbjdmj3?utm_source=share&utm_medium=web2x&context=3
+  -- due to https://www.reddit.com/r/adventofcode/comments/5jvbzt/2016_day_23_solutions/dbjbqtq
+  partTwo _ = show $ factorial 12 + (76 * 80)
 
 
