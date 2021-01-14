@@ -4,7 +4,7 @@ import Text.Parsec as Parsec
 import qualified Data.Map as Map
 import Control.Monad (zipWithM)
 import Data.Char (digitToInt)
-import Data.List (foldl')
+import Data.List (foldl', find)
 import Data.Word8
 import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Base16 as B16
@@ -25,6 +25,16 @@ replace index element = zipWith (curry transform) [0 ..]
 
 concatRep :: Int -> String -> String
 concatRep n = concat . replicate n
+
+remove :: Int -> [a] -> [a]
+remove _ [] = []
+remove 0 (_:rest) = rest
+remove n (hd:rest) = hd:remove (pred n) rest
+
+insert :: a -> Int -> [a] -> [a]
+insert a 0 elems = a:elems
+insert _ _ [] = []
+insert a n (hd:rest) = hd : insert a (pred n) rest 
 
 -- | PARSING
 

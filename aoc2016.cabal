@@ -45,6 +45,7 @@ library
       DayEighteen
       DayNineteen
       DayTwenty
+      DayTwentyOne
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
@@ -68,6 +69,7 @@ library
       src/challenges/dayeighteen
       src/challenges/daynineteen
       src/challenges/daytwenty
+      src/challenges/daytwentyone
   build-depends:
       base >=4.7 && <5
       , text
@@ -76,6 +78,8 @@ library
       , cryptohash-md5
       , bytestring
       , parsec
+      , regex-tdfa
+      , regex-tdfa-text
       , utf8-string
       , word8
       , base16-bytestring

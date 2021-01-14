@@ -5,7 +5,7 @@ import Challenge
 import Data.Map
 import Data.Function
 import Text.Parsec as Parsec
-import Utils
+import Utils hiding (insert)
 
 registers1 :: Map Char Int
 registers1 = fromList [ ('a', 0) , ('b', 0) , ('c', 0) , ('d', 0) ]

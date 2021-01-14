@@ -6,7 +6,7 @@ import Challenge
 import Data.Map
 import Data.Function
 import Text.Parsec as Parsec
-import Utils
+import Utils hiding (insert)
 
 data Destination
   = Bot Int
