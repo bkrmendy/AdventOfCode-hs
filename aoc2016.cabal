@@ -46,6 +46,7 @@ library
       DayNineteen
       DayTwenty
       DayTwentyOne
+      DayTwentyTwo
       DayTwentyThree
   other-modules:
       Paths_aoc2016
@@ -71,11 +72,13 @@ library
       src/challenges/daynineteen
       src/challenges/daytwenty
       src/challenges/daytwentyone
+      src/challenges/daytwentytwo
       src/challenges/daytwentythree
   build-depends:
       base >=4.7 && <5
       , text
       , containers
+      , hashmap
       , split
       , cryptohash-md5
       , bytestring

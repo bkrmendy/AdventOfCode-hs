@@ -26,6 +26,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/daytwenty" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/daytwentyone" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/challenges/daytwentythree" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/challenges/daytwentytwo" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.stack-work" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -50,5 +51,7 @@
     <orderEntry type="library" name="regex-base-0.93.2" level="project" />
     <orderEntry type="library" name="regex-tdfa-1.2.3.2" level="project" />
     <orderEntry type="library" name="regex-tdfa-text-1.0.0.3" level="project" />
+    <orderEntry type="library" name="hashmap-1.3.3" level="project" />
+    <orderEntry type="library" name="hashable-1.2.7.0" level="project" />
   </component>
 </module>
