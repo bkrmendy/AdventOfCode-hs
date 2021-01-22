@@ -6,7 +6,7 @@ import DayEleven
 runChallenge :: IO ()
 runChallenge = do
   input <- readFile "/Users/prezi/IdeaProjects/aoc2016/src/challenges/dayeleven/input.txt"
-  let parsed = parse input :: [[(Component, Element)]]
+  let parsed = parse input :: [Floor]
   putStrLn $ partOne parsed
   putStrLn $ partTwo parsed
 
