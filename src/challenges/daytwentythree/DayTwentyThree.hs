@@ -6,7 +6,7 @@ import Challenge
 import Utils
 
 data Operand = Immediate Int | Register Char | Missing deriving (Show, Eq)
-data Opcode = Cpy | Inc | Dec | Tgl | Jnz deriving (Show)
+data Opcode = Cpy | Inc | Dec | Tgl | Jnz | Mul | Add deriving (Show)
 data Instruction = Instruction { code :: Opcode, left :: Operand, right :: Operand } deriving (Show)
 
 mkOpcode :: String -> Opcode
@@ -15,6 +15,8 @@ mkOpcode "inc" = Inc
 mkOpcode "dec" = Dec
 mkOpcode "tgl" = Tgl
 mkOpcode "jnz" = Jnz
+mkOpcode "mul" = Mul
+mkOpcode "add" = Add
 mkOpcode opc   = error ("Opcode " ++ opc ++ " not recognized")
 
 type Registers = Map.Map Char Int
@@ -37,8 +39,8 @@ mkInstruction line = parse' pieces
 inc :: Registers -> Char -> (Int -> Int) -> Registers
 inc regs reg f = Map.insert reg (f $ unsafeFromMaybe $ Map.lookup reg regs) regs
 
-cpy :: Registers -> Int -> Char -> Registers
-cpy regs val dest = Map.insert dest val regs
+set :: Registers -> Int -> Char -> Registers
+set regs val dest = Map.insert dest val regs
 
 tgl :: [Instruction] -> Int -> [Instruction]
 tgl [] _ = []
@@ -69,7 +71,9 @@ run ip registers instructions
     step (Instruction Inc (Register r) Missing) = run (succ ip) (inc registers r succ) instructions
     step (Instruction Inc (Register r) v) = run (succ ip) (inc registers r (+ value v)) instructions
     step (Instruction Dec (Register r) _) = run (succ ip) (inc registers r pred) instructions
-    step (Instruction Cpy _left (Register r)) = run (succ ip) (cpy registers (value _left) r) instructions
+    step (Instruction Cpy _left (Register r)) = run (succ ip) (set registers (value _left) r) instructions
+    step (Instruction Mul rl rr@(Register r)) = run (succ ip) (set registers (value rl * value rr) r) instructions
+    step (Instruction Add rl rr@(Register r)) = run (succ ip) (set registers (value rl + value rr) r) instructions
     step (Instruction Jnz _x _y) = run ip' registers instructions
       where
         ip' = if value _x == 0 then succ ip else ip + value _y
@@ -84,8 +88,6 @@ registers2 = Map.fromList [('a', 12), ('b', 0), ('c', 0), ('d', 0)]
 instance Challenge [Instruction] where
   parse = map mkInstruction . lines
   partOne = show . Map.lookup 'a' . run 0 registers1
-  -- todo https://www.reddit.com/r/adventofcode/comments/5jvbzt/2016_day_23_solutions/dbjdmj3?utm_source=share&utm_medium=web2x&context=3
-  -- due to https://www.reddit.com/r/adventofcode/comments/5jvbzt/2016_day_23_solutions/dbjbqtq
-  partTwo _ = show $ factorial 12 + (76 * 80)
+  partTwo = show . Map.lookup 'a' . run 0 registers2
 
 
