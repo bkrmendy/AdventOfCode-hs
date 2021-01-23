@@ -9,6 +9,7 @@ import Data.Word8
 import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Base16 as B16
 import qualified Crypto.Hash.MD5 as MD5
+import qualified Data.Set as Set
 
 -- | LISTS
 transpose :: [[a]] -> [[a]]
@@ -34,7 +35,18 @@ remove n (hd:rest) = hd:remove (pred n) rest
 insert :: a -> Int -> [a] -> [a]
 insert a 0 elems = a:elems
 insert _ _ [] = []
-insert a n (hd:rest) = hd : insert a (pred n) rest 
+insert a n (hd:rest) = hd : insert a (pred n) rest
+
+-- | SET
+listify :: (Ord a) => (a -> Set.Set a -> Set.Set a) -> [a] -> Set.Set a -> Set.Set a
+listify _ [] set = set
+listify f (a:as) set = listify f as (f a set)
+
+inserts :: (Ord a) => [a] -> Set.Set a -> Set.Set a
+inserts = listify Set.insert
+
+deletes :: (Ord a) => [a] -> Set.Set a -> Set.Set a
+deletes = listify Set.delete
 
 -- | PARSING
 

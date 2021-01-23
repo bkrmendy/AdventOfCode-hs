@@ -48,6 +48,7 @@ library
       DayTwentyOne
       DayTwentyTwo
       DayTwentyThree
+      Day24
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
@@ -74,6 +75,7 @@ library
       src/challenges/daytwentyone
       src/challenges/daytwentytwo
       src/challenges/daytwentythree
+      src/challenges/day24
   build-depends:
       base >=4.7 && <5
       , text
@@ -88,6 +90,7 @@ library
       , utf8-string
       , word8
       , base16-bytestring
+      , heap
   default-language: Haskell2010
 
 executable aoc2016-exe
