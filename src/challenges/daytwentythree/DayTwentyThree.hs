@@ -53,13 +53,6 @@ tgl ((Instruction Jnz _left _right):rest) 0 = Instruction Cpy _left _right:rest
 tgl ((Instruction Cpy _left _right):rest) 0 = Instruction Jnz _left _right:rest
 tgl (hd:rest) n = hd : tgl rest (pred n)
 
-optimize :: [Instruction] -> [Instruction]
-optimize [] = []
-optimize (i1@(Instruction Inc e _):i2@(Instruction Dec a _):i3@(Instruction Jnz b (Immediate (-2))):rest)
-  | a == b = Instruction Inc e a:optimize (i2:i3:rest)
-  | otherwise = i1:optimize (i2:i3:rest)
-optimize (hd:rest) = hd : optimize rest
-
 run :: Int -> Registers -> [Instruction] -> Registers
 run ip registers instructions
   | ip >= length instructions = registers
@@ -71,9 +64,9 @@ run ip registers instructions
     step (Instruction Inc (Register r) Missing) = run (succ ip) (inc registers r succ) instructions
     step (Instruction Inc (Register r) v) = run (succ ip) (inc registers r (+ value v)) instructions
     step (Instruction Dec (Register r) _) = run (succ ip) (inc registers r pred) instructions
-    step (Instruction Cpy _left (Register r)) = run (succ ip) (set registers (value _left) r) instructions
-    step (Instruction Mul rl rr@(Register r)) = run (succ ip) (set registers (value rl * value rr) r) instructions
-    step (Instruction Add rl rr@(Register r)) = run (succ ip) (set registers (value rl + value rr) r) instructions
+    step (Instruction Cpy _left (Register dest)) = run (succ ip) (set registers (value _left) dest) instructions
+    step (Instruction Mul rl rr@(Register dest)) = run (succ ip) (set registers (value rl * value rr) dest) instructions
+    step (Instruction Add rl rr@(Register dest)) = run (succ ip) (set registers (value rl + value rr) dest) instructions
     step (Instruction Jnz _x _y) = run ip' registers instructions
       where
         ip' = if value _x == 0 then succ ip else ip + value _y
