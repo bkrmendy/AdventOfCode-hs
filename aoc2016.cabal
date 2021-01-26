@@ -36,6 +36,7 @@ library
       DayEight
       DayNine
       DayTen
+      DayEleven
       DayTwelve
       DayThirteen
       DayFourteen
@@ -53,7 +54,7 @@ library
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
-      src
+      src/
       src/challenges
       src/challenges/dayone
       src/challenges/daytwo
@@ -64,6 +65,7 @@ library
       src/challenges/dayeight
       src/challenges/daynine
       src/challenges/dayten
+      src/challenges/dayeleven
       src/challenges/daytwelve
       src/challenges/daythirteen
       src/challenges/dayfourteen
