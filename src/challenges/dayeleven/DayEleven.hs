@@ -99,14 +99,17 @@ solve cache queue
     nextCache = insert nextMoves cache
 
 floors1 :: [Floor]
-floors1 = [ Set.fromList [(Generator, Polonium), (Generator, Thulium), (Microchip, Thulium), (Generator, Promethium), (Generator, Ruthenium), (Microchip, Ruthenium), (Generator, Cobalt), (Microchip, Cobalt) ]
+floors1 = [ Set.fromList [ (Generator, Promethium), (Generator, Polonium)
+                         , (Generator, Cobalt), (Microchip, Cobalt) ]
           , Set.fromList [(Microchip, Polonium), (Microchip, Promethium)]
           , Set.empty
           , Set.empty
           ]
-         
+
+-- ^ https://www.reddit.com/r/adventofcode/comments/5hoia9/2016_day_11_solutions/db1v3ar?utm_source=share&utm_medium=web2x&context=3
 floors2 :: [Floor]
-floors2 = [ Set.fromList [(Generator, Elerium), (Microchip, Elerium), (Generator, Dilithium), (Microchip, Dilithium), (Generator, Polonium), (Generator, Thulium), (Microchip, Thulium), (Generator, Promethium), (Generator, Ruthenium), (Microchip, Ruthenium), (Generator, Cobalt), (Microchip, Cobalt) ]
+floors2 = [ Set.fromList [ (Generator, Promethium), (Generator, Polonium)
+                         , (Generator, Cobalt), (Microchip, Cobalt) ]
           , Set.fromList [(Microchip, Polonium), (Microchip, Promethium)]
           , Set.empty
           , Set.empty
@@ -117,12 +120,9 @@ floorsEx = [ Set.fromList [(Microchip,Lithium), (Microchip,Hydrogen)]
            , Set.fromList [(Generator,Hydrogen)]
            , Set.fromList [(Generator,Lithium)]
            , Set.fromList []]
-           
-solveAlt :: [Floor]
-solveAlt fs = 
-  
+
 instance Challenge [Floor] where
   parse _ = floors1
-  partOne _ = show $ solve Set.empty (Seq.singleton (0, (0, floors1)))
-  partTwo _ = "Kacsa" --show $ solve Set.empty (Seq.singleton (0, (0, floors2)))
+  partOne _ = show $ (+ 24) $ solve Set.empty (Seq.singleton (0, (0, floors1)))
+  partTwo _ = show $ (+ 48) $ solve Set.empty (Seq.singleton (0, (0, floors2)))
 
