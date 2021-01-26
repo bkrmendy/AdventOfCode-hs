@@ -1,12 +1,12 @@
 module Main where
 
 import Challenge
-import Day25
+import Year2016.Day1
 
 runChallenge :: IO ()
 runChallenge = do
-  input <- readFile "/Users/prezi/IdeaProjects/aoc2016/src/challenges/day25/input.txt"
-  let parsed = parse input :: Int
+  input <- readFile "/Users/prezi/IdeaProjects/aoc2016/input/2016/1.txt"
+  let parsed = parse input :: Instructions
   putStrLn $ partOne parsed
   putStrLn $ partTwo parsed
 

@@ -27,59 +27,12 @@ library
   exposed-modules:
       Challenge
       Utils
-      DayOne
-      DayTwo
-      DayThree
-      DayFour
-      DaySix
-      DaySeven
-      DayEight
-      DayNine
-      DayTen
-      DayEleven
-      DayTwelve
-      DayThirteen
-      DayFourteen
-      DayFifteen
-      DaySixteen
-      DaySeventeen
-      DayEighteen
-      DayNineteen
-      DayTwenty
-      DayTwentyOne
-      DayTwentyTwo
-      DayTwentyThree
-      Day24
-      Day25
+      Year2016.Day1
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
       src/
-      src/challenges
-      src/challenges/dayone
-      src/challenges/daytwo
-      src/challenges/daythree
-      src/challenges/dayfour
-      src/challenges/daysix
-      src/challenges/dayseven
-      src/challenges/dayeight
-      src/challenges/daynine
-      src/challenges/dayten
-      src/challenges/dayeleven
-      src/challenges/daytwelve
-      src/challenges/daythirteen
-      src/challenges/dayfourteen
-      src/challenges/dayfifteen
-      src/challenges/daysixteen
-      src/challenges/dayseventeen
-      src/challenges/dayeighteen
-      src/challenges/daynineteen
-      src/challenges/daytwenty
-      src/challenges/daytwentyone
-      src/challenges/daytwentytwo
-      src/challenges/daytwentythree
-      src/challenges/day24
-      src/challenges/day25
+      src/Year2016/
   build-depends:
       base >=4.7 && <5
       , text

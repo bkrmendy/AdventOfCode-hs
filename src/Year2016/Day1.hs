@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module DayOne where
+module Year2016.Day1 where
 import Challenge
 
 import qualified Data.Text as T
