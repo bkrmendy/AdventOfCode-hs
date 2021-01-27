@@ -27,11 +27,12 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2015.Day5
+      Year2015.Day9
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
       src/
+      src/Year2015/
       src/Year2016/
   build-depends:
       base >=4.7 && <5
