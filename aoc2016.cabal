@@ -27,7 +27,7 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2016.Day1
+      Year2015.Day5
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
