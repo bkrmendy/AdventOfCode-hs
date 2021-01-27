@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Year2016" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Year2015" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.stack-work" />
     </content>
     <orderEntry type="inheritedJdk" />

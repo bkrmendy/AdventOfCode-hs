@@ -28,4 +28,3 @@ instance Challenge [Edge] where
   parse = parseLines (sepBy1 parseDistance newline)
   partOne = show . minimum . tsp . dup
   partTwo = show . maximum . tsp . dup
-
