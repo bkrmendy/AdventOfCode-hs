@@ -34,6 +34,7 @@ replacements str = foldr go Set.empty
   where
     go re se = Set.union se $ Set.fromList $ replacementsOf str re
 
+-- ^ for historical reasons
 shrinkBfs :: String -> [Replacement] -> Int
 shrinkBfs str reps = shrinkI (Set.singleton str) (Seq.singleton (0, str))
   where
