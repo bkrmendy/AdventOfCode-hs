@@ -13,8 +13,8 @@ partOneFilter str = hasThreeVowels && hasTwiceInRow && noForbiddenStrings
 
 pairs :: [a] -> [(a, a)]
 pairs [] = []
-pairs [_] = []
-pairs (a:b:rest) = (a, b):pairs rest ++ pairs (b:rest)
+pairs [a,b] = [(a, b)]
+pairs (a:b:rest) = (a, b):pairs (b:rest)
 
 threes :: [a] -> [(a, a, a)]
 threes [] = []
@@ -24,7 +24,7 @@ threes (a:b:c:rest) = (a, b, c):threes (b:c:rest)
 partTwoFilter :: String -> Bool
 partTwoFilter str = anyTwo str && repeats && noThrees
   where
-    anyTwo = any ((>1) . length) . group . sort . pairs 
+    anyTwo = any ((>1) . length) . group . sort . pairs
     repeats = any (\(a, _, c) -> a == c) $ threes str
     noThrees = not $ any (\(a, b, c) -> a == c && a == b) $ threes str
 
