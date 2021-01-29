@@ -129,3 +129,6 @@ chineseRemainder residues modulii =
 factorial :: (Integral a) => a -> a
 factorial 0 = 1
 factorial n = n * factorial (pred n)
+
+manhattan :: (Int, Int) -> Int
+manhattan (a, b) = abs a + abs b
