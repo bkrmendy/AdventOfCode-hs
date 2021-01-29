@@ -1,5 +1,6 @@
 module Year2015.Day22 where
 import Challenge
+import Utils (replace)
 import Data.Maybe (catMaybes)
 import Data.List (sortOn)
 
@@ -9,29 +10,26 @@ data GameState = GameState { playerHealth :: Int
                            , bossHealth :: Int
                            , bossDamage :: Int
                            , mana :: Int
-                           , activeEffects :: [(Int, Effect)]
-                           , passiveEffects :: [Effect]
+                           , pEffects :: [(Int, Effect)]
                            }
 
 decreaseEffectTimers :: GameState -> GameState
-decreaseEffectTimers state = state { activeEffects = nextActiveEffects, passiveEffects = nextPassiveEffects }
-  where
-    nextActiveEffects = [(t - 1, e) | (t, e) <- activeEffects state]
-    nextPassiveEffects = passiveEffects state ++ [e | (t, e) <- activeEffects state, t <= 0]
+decreaseEffectTimers state = state { pEffects = [(t - 1, e) | (t, e) <- pEffects state] }
 
 applyEffects :: GameState -> GameState
-applyEffects state = foldr (doEffect . snd) state (activeEffects state)
+applyEffects state = foldr doEffect state activeEffects
   where
+    activeEffects = [e | (t, e) <- pEffects state, t >= 0]
     doEffect :: Effect -> GameState ->  GameState
-    doEffect Poison st= st { bossHealth = bossHealth st - 3 }
+    doEffect Poison st = st { bossHealth = bossHealth st - 3 }
     doEffect Recharge st = st { mana = mana st + 101 }
     doEffect Shield st = st
 
 bossDealsDamage :: GameState -> GameState
 bossDealsDamage state = state { playerHealth = playerHealth state - actualBossDamage}
   where
-    actualBossDamage = max 1 (bossDamage state - playerArmor)
-    playerArmor = sum [7 | (_, Shield) <- activeEffects state]
+    actualBossDamage = bossDamage state - playerArmor
+    playerArmor = sum [7 | (t, Shield) <- pEffects state, t >= 1]
 
 actions :: [(Int, GameState -> GameState)]
 actions = [ (53, missile)
@@ -44,14 +42,13 @@ effects = [ (113, 6, Shield)
           , (229, 5, Recharge)
           ]
 
--- 229 + 113 + 73 + 173 + 53
-
 cast :: Int -> GameState -> (Int, Int, Effect) -> [(Int, GameState)]
-cast manaUsed state (cost, duration, effect) = [(manaUsed + cost, newState) | effect `elem` passiveEffects state
+cast manaUsed state (cost, duration, effect) = [(manaUsed + cost, newState) | effect `elem` possibleEffects
                                                                             , mana state >= cost]
   where
-    newState = state { activeEffects = (duration, effect):activeEffects state
-                     , passiveEffects = filter (effect /=) (passiveEffects state)
+    possibleEffects = [e | (t, e) <- pEffects state, t <= 0]
+    activate (d, e) (du, ef) = if e == ef then (d, e) else (du, ef)
+    newState = state { pEffects = map (activate (duration, effect)) (pEffects state)
                      , mana = mana state - cost
                      }
 
@@ -70,36 +67,51 @@ doAction :: Int -> GameState -> (Int, GameState -> GameState) -> [(Int, GameStat
 doAction manaUsed state (cost, action) = [(manaUsed + cost, action state) | mana state >= cost]
 
 bossTurn :: GameState -> GameState
-bossTurn = bossDealsDamage . applyEffects . decreaseEffectTimers
+bossTurn = bossDealsDamage . decreaseEffectTimers . applyEffects
 
-playerTurn :: Int -> GameState -> [Maybe Int]
-playerTurn manaUsed state
+decreasePlayerHealth :: GameState -> GameState
+decreasePlayerHealth state = state { playerHealth = playerHealth state - 1 }
+
+type Difficulty = GameState -> GameState
+easy :: Difficulty
+easy = applyEffects . decreaseEffectTimers
+hard :: Difficulty
+hard = applyEffects . decreaseEffectTimers . decreasePlayerHealth
+
+playerTurn :: Int -> Difficulty -> GameState -> [Maybe Int]
+playerTurn manaUsed difficulty state
   | bossHealth state <= 0 = [Just manaUsed]
   | playerHealth state <= 0 || mana state <= 0 = [Nothing]
-  | otherwise = concat [playerTurn m (bossTurn s) | (m, s) <- sortOn fst possibilities]
+  | otherwise = concat [playerTurn m difficulty (bossTurn s) | (m, s) <- sortOn fst possibilities]
   where
-    nextState = applyEffects (decreaseEffectTimers state)
+    nextState = difficulty state
     possibilities = concatMap (doAction manaUsed nextState) actions ++ concatMap (cast manaUsed nextState) effects
+
+easyDiff :: GameState -> GameState
+easyDiff = applyEffects . decreaseEffectTimers
 
 startState :: GameState
 startState = GameState { playerHealth = 50
                        , mana = 500
                        , bossHealth = 71
                        , bossDamage = 10
-                       , activeEffects = []
-                       , passiveEffects = [Shield, Poison, Recharge]
+                       , pEffects = [(-1, Shield), (-1, Poison), (-1, Recharge)]
                        }
 
 startStateEx :: GameState
 startStateEx = GameState { playerHealth = 10
+                         , mana = 250
                          , bossHealth = 14
                          , bossDamage = 8
-                         , mana = 250
-                         , activeEffects = []
-                         , passiveEffects = [Shield, Poison, Recharge]
+                         , pEffects = [(-1, Shield), (-1, Poison), (-1, Recharge)]
                          }
+
+-- ^ TODO: refactor to use state monad
+-- part one not ok
+
+solve difficulty = show . head . take 1 . catMaybes . playerTurn 0 difficulty 
 
 instance Challenge GameState where
   parse _ = startState
-  partOne = show . head . take 1 . catMaybes . playerTurn 0
-  partTwo _ = "2"
+  partOne = solve easy
+  partTwo = solve hard
