@@ -46,6 +46,9 @@ insert a 0 elems = a:elems
 insert _ _ [] = []
 insert a n (hd:rest) = hd : insert a (pred n) rest
 
+count :: Eq a => a -> [a] -> Int
+count x = length . filter (x==)
+
 -- | SET
 listify :: (Ord a) => (a -> Set.Set a -> Set.Set a) -> [a] -> Set.Set a -> Set.Set a
 listify _ [] set = set
