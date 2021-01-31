@@ -12,7 +12,7 @@ decode = foldl1 stack
     stack = zipWith combine
     combine 2 n = n
     combine n 2 = n
-    combine _ n = n
+    combine n _ = n
 
 prettify :: [Int] -> String
 prettify = map disp
@@ -23,4 +23,4 @@ prettify = map disp
 instance Challenge [[Int]] where
   parse = map (map digitToInt) . chunksOf (25 * 6)
   partOne = show . (\xs -> count 1 xs * count 2 xs) . head . sortOn (count 0)
-  partTwo = unlines . map prettify . chunksOf 25 . decode . reverse
+  partTwo = unlines . map prettify . chunksOf 25 . decode
