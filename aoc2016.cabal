@@ -28,7 +28,7 @@ library
       Challenge
       Utils
       Intcode
-      Year2019.Day2
+      Year2019.Day5
   other-modules:
       Paths_aoc2016
   hs-source-dirs:

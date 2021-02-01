@@ -375,7 +375,7 @@ runCode code =
     readProcessMemory 0
   ) initialState
 
-executeCode :: Program -> [Int] -> [Int]
-executeCode code initialInputs =
+executeCode :: [Int] -> Program -> [Int]
+executeCode initialInputs code =
     let initialState = initializeProcess code initialInputs
         in evalState continueExecution initialState
