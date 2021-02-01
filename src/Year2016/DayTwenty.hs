@@ -17,7 +17,7 @@ mergeAll (a@(lo, hi):b@(lo', hi'):rest)
   | otherwise = a : mergeAll (b:rest)
 
 pairs :: [(Integer, Integer)] -> [((Integer, Integer), (Integer, Integer))]
-pairs = s zip tail . mergeAll . sortOn fst
+pairs = ps zip tail . mergeAll . sortOn fst
 
 partOneI :: [(Integer, Integer)] -> Integer
 partOneI = pred . fst . snd . unsafeFromMaybe . find (\(a, b) -> snd a < fst b - 1) . pairs

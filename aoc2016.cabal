@@ -49,7 +49,9 @@ library
       , utf8-string
       , word8
       , base16-bytestring
-      , heap
+      , unordered-containers
+      , digits
+      , mtl
   default-language: Haskell2010
 
 executable aoc2016-exe
