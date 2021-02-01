@@ -12,6 +12,7 @@ import qualified Data.HashMap.Strict as Map
 import Data.Digits
 import Control.Monad.State
 import Debug.Trace
+
 newtype Program = Program { unProgram :: [Int] }
 
 fromString :: String -> Program
@@ -53,6 +54,7 @@ data ProcessState = ProcessState { _memory :: Memory
 
 processStatus :: State ProcessState ExecutionState
 processStatus = gets _status
+
 
 hasShutDown :: State ProcessState Bool
 hasShutDown = do
@@ -113,11 +115,11 @@ writeToProcessMemory pointer value =
 
 addProcessInput :: Int -> State ProcessState ()
 addProcessInput additionalInput =
-  modify $ \s@ProcessState{ _inputs = inputStream } -> s {_inputs = execState (addInput additionalInput) inputStream}
+  modify $ \s@ProcessState{ _inputs = inputStream } -> s { _inputs = execState (addInput additionalInput) inputStream }
 
 addProcessInputs :: [Int] -> State ProcessState ()
 addProcessInputs additionalInputs =
-  modify $ \s@ProcessState{ _inputs = inputStream } -> s {_inputs = execState (addInputs additionalInputs) inputStream}
+  modify $ \s@ProcessState{ _inputs = inputStream } -> s { _inputs = execState (addInputs additionalInputs) inputStream }
 
 popProcessInput :: State ProcessState (Maybe Int)
 popProcessInput = state $ \s@ProcessState{ _inputs = inputStream } ->
@@ -183,10 +185,9 @@ toArgumentMode 1 = Just Value
 toArgumentMode 2 = Just Relative
 toArgumentMode _ = Nothing
 
-data ArgumentSpecification = ArgumentSpecification {
-    argumentMode :: ArgumentMode,
-    operationMode :: OperationMode
-} deriving (Eq, Show)
+data ArgumentSpecification = ArgumentSpecification { _argumentMode :: ArgumentMode
+                                                   , _operationMode :: OperationMode
+                                                   } deriving (Eq, Show)
 
 data Instruction = Instruction { _opcode :: Opcode
                                , _argumentSpecifications :: [ArgumentSpecification]
@@ -195,9 +196,9 @@ data Instruction = Instruction { _opcode :: Opcode
 instructionArgument :: Int -> (Int, ArgumentSpecification) -> State ProcessState Int
 instructionArgument basePtr (offset, argSpec) =
   let evalPtr = basePtr + offset
-    in case argumentMode argSpec of
+    in case _argumentMode argSpec of
       Value -> readProcessMemory evalPtr
-      Pointer -> case operationMode argSpec of
+      Pointer -> case _operationMode argSpec of
                     Write -> readProcessMemory evalPtr
                     Read -> do
                       transitiveEvaluationPointer <- readProcessMemory evalPtr
@@ -206,15 +207,15 @@ instructionArgument basePtr (offset, argSpec) =
         relativeBase <- processBasePointer
         baseIncr <- readProcessMemory evalPtr
         let targetPtr = relativeBase + baseIncr
-          in case operationMode argSpec of
+          in case _operationMode argSpec of
             Write -> return targetPtr
             Read -> readProcessMemory targetPtr
 
 instructionArguments :: Instruction -> State ProcessState Arguments
-instructionArguments instr = do
-  base <- processBasePointer
-  let enumeratedArgs = zip [1..] (_argumentSpecifications instr)
-    in mapM (instructionArgument base) enumeratedArgs
+instructionArguments instruction = do
+    basePointer <- processPC
+    let enumeratedArgumentSpecifications = zip [1..] (_argumentSpecifications instruction)
+        in mapM (instructionArgument basePointer) enumeratedArgumentSpecifications
 
 argumentModesFromSpecifier :: Int -> Maybe [Maybe ArgumentMode]
 argumentModesFromSpecifier 0 = Just []
@@ -269,7 +270,7 @@ applyBinaryComparisonAndWrite :: (Int -> Int -> Bool) -> (Arguments -> State Pro
 applyBinaryComparisonAndWrite binaryComp arguments = do
     let
         targetPointer = arguments !! 2
-        value = if (head arguments) `binaryComp` (arguments!!1)
+        value = if (head arguments) `binaryComp` (arguments !! 1)
             then 1
             else 0
         in writeToProcessMemory targetPointer value
@@ -308,16 +309,16 @@ getOperation :: Arguments -> State ProcessState (Maybe Int)
 getOperation arguments = do
     maybeInput <- popProcessInput
     case maybeInput of
-        Nothing -> do
+        Nothing -> (do
             setProcessStatus Blocked
-            return Nothing
-        Just input -> do
+            return Nothing)
+        Just input -> (do
             let
                 targetPointer = head arguments
                 in writeToProcessMemory targetPointer input
             incrementPC 2
             setProcessStatus Running
-            return Nothing
+            return Nothing)
 
 putOperation :: Arguments -> State ProcessState (Maybe Int)
 putOperation arguments = do
@@ -361,11 +362,10 @@ executeInstruction instruction = do
 runUntilTerminated :: State ProcessState ()
 runUntilTerminated = do
   running <- isRunning
-  when running $ do
+  when running (do
       _ <- executeNextInstruction
-      i <- readProcessMemory 0
-      traceM (show i)
-      runUntilTerminated
+      status <- gets _status
+      runUntilTerminated)
 
 runCode :: Program -> Int
 runCode code =
