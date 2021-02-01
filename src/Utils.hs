@@ -101,8 +101,8 @@ hash :: Bs.ByteString -> Bs.ByteString
 hash = Bs.pack . map toLower . Bs.unpack . B16.encode . MD5.hash
 
 -- | Combinator
-s :: (t1 -> t2 -> t3) -> (t1 -> t2) -> t1 -> t3
-s f g x = f x (g x)
+ps :: (t1 -> t2 -> t3) -> (t1 -> t2) -> t1 -> t3
+ps f g x = f x (g x)
 
  
 -- | CHINESE REMAINDER THEOREM

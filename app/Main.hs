@@ -1,12 +1,13 @@
 module Main where
 
 import Challenge
-import Year2019.Day8
+import qualified Intcode as IC
+import Year2019.Day5
 
 runChallenge :: IO ()
 runChallenge = do
-  input <- readFile "/Users/prezi/IdeaProjects/aoc2016/input/2019/8.txt"
-  let parsed = parse input :: [[Int]]
+  input <- readFile "/Users/prezi/IdeaProjects/aoc2016/input/2019/5.txt"
+  let parsed = parse input :: IC.Program
   putStrLn $ partOne parsed
   putStrLn $ partTwo parsed
 
