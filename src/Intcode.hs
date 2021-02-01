@@ -1,11 +1,14 @@
 module Intcode (
   Program(Program, unProgram)
+  , ProcessState (_status)
+  , ExecutionState(Running, Blocked, Terminated, Error)
   , fromString
   , continueExecution
   , executeCode
   , readProcessMemory
   , initializeProcess
   , runCode
+  , addProcessInputs
 ) where
 import Data.List.Split (splitOn)
 import qualified Data.HashMap.Strict as Map
