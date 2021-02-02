@@ -135,3 +135,6 @@ factorial n = n * factorial (pred n)
 
 manhattan :: (Int, Int) -> Int
 manhattan (a, b) = abs a + abs b
+
+toInt :: Float -> Int
+toInt x = round x
