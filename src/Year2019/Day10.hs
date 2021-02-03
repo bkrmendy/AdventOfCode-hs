@@ -1,14 +1,13 @@
 {-# LANGUAGE FlexibleInstances #-}
 module Year2019.Day10 where
 import Challenge
-import Utils (toInt)
 import Data.List (sortOn, groupBy)
 import qualified Data.Set as Set
 
 type Grid = Set.Set (Float, Float)
 
 slope :: (Float, Float) -> (Float, Float) -> Float
-slope (r1, c1) (r2, c2) = pi - atan2 (r1 - r2) (c1 - c2)
+slope (r1, c1) (r2, c2) = atan2 (negate (c1 - c2)) (id (r1 - r2))
 
 distance :: (Float, Float) -> (Float, Float) -> Float
 distance (a, b) (x, y) = sqrt ((a - x) ^ 2 + (b - y) ^ 2)
@@ -23,23 +22,15 @@ stationCandidates asteroidCoords = [(nAsteroidsVisible c, c) | c <- Set.elems as
 partTwoI :: Grid -> (Float, Float)
 partTwoI grid = fire 200 classes
   where
-    (_, station) = head (stationCandidates grid)
-    slopes = groupBy (\a b -> direction station a == direction station b) [c | c <- Set.elems grid, c /= station]
-    classes = sortOn (distance station) <$> sortOn (slope station . head) slopes
-
+    (_, station) = maximum (stationCandidates grid)
+    classes = map (sortOn (distance station))
+              $ groupBy (\a b -> slope a station == slope b station)
+              $ sortOn (`slope` station) [c | c <- Set.elems grid, c /= station]
 
 fire :: Int -> [[(Float, Float)]] -> (Float, Float)
 fire i cs
   | i <= length cs = head $ cs !! (i - 1)
   | otherwise      = fire (i - length cs) $ filter (not . null) $ fmap tail cs
-
-direction :: (Float, Float) -> (Float, Float) -> (Float, Float)
-direction (x, y) (a, b) =
-  let
-    dx = toInt $ a - x
-    dy = toInt $ b - y
-    g  = gcd dx dy
-  in (fromIntegral (dx `div` g), fromIntegral (dy `div` g))
 
 fromLines :: [String] -> Grid
 fromLines rows = Set.fromList $ [(fromIntegral row :: Float, fromIntegral col :: Float) | row <- [0..gridHeight]
@@ -51,9 +42,9 @@ fromLines rows = Set.fromList $ [(fromIntegral row :: Float, fromIntegral col ::
       gridHeight = length (head rows) - 1
 
 fromCoord :: (Float, Float) -> Float
-fromCoord (r, c) = r * 100 + c
+fromCoord (r, c) = c * 100 + r
 
 instance Challenge Grid where
   parse = fromLines . lines
-  partOne = show . fst . maximum . stationCandidates
+  partOne = show . maximum . stationCandidates
   partTwo = show . fromCoord . partTwoI
