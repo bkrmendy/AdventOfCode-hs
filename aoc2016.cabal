@@ -27,9 +27,8 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2018.Day19
+      Year2019.Day10
       Intcode
-      Elfcode
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
