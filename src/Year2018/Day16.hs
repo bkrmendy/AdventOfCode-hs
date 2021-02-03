@@ -1,14 +1,11 @@
 {-# LANGUAGE FlexibleInstances #-}
 module Year2018.Day16 where
 import Challenge
-import Utils (replace)
 import Data.List (nub)
 import Data.List.Split (splitOn)
-import Data.Bits
 import qualified Data.Map as Map
+import Elfcode
 
-newtype Registers = Registers { unRegisters :: [Int] } deriving (Eq, Show)
-newtype Opcode = Opcode [Int] deriving Show
 data Capture = Capture { before :: Registers, encoded :: Opcode, after :: Registers } deriving Show
 
 toOpcode :: String -> Opcode
@@ -28,8 +25,6 @@ parseI input = (cs, os)
     cs = map fromString (splitOn "\n\n" captures)
     os = map toOpcode (splitOn "\n" opcodes)
 
-data Instruction = Addr | Addi | Mulr | Muli | Banr | Bani | Borr | Bori | Setr | Seti | Gtir | Gtri | Gtrr | Eqir | Eqri | Eqrr deriving (Eq, Show)
-
 allInstructions :: [Instruction]
 allInstructions = [Addr, Addi, Mulr, Muli, Banr, Bani, Borr, Bori, Setr, Seti, Gtir, Gtri, Gtrr, Eqir, Eqri, Eqrr]
 
@@ -38,38 +33,8 @@ threeOp Setr = False
 threeOp Seti = False
 threeOp _    = True
 
-gt :: Int -> Int -> Int
-gt a b = if a > b then 1 else 0
-
-eq :: Int -> Int -> Int
-eq a b = if a == b then 1 else 0
-
-exec :: Instruction -> Opcode -> Registers -> Registers
-exec Addr (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) + (regs !! b)) regs)
-exec Addi (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) + b          ) regs)
-
-exec Mulr (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) * (regs !! b)) regs)
-exec Muli (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) * b          ) regs)
-
-exec Banr (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) .&. (regs !! b)) regs)
-exec Bani (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) .&. b          ) regs)
-
-exec Borr (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) .|. (regs !! b)) regs)
-exec Bori (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) .|. b          ) regs)
-
-exec Setr (Opcode [_, a, _, c]) (Registers regs) = Registers (replace c (regs !! a) regs)
-exec Seti (Opcode [_, a, _, c]) (Registers regs) = Registers (replace c a           regs)
-
-exec Gtir (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c (gt a           (regs !! b)) regs)
-exec Gtri (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c (gt (regs !! a) b)           regs)
-exec Gtrr (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c (gt (regs !! a) (regs !! b)) regs)
-
-exec Eqir (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c (eq a           (regs !! b)) regs)
-exec Eqri (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c (eq (regs !! a)           b) regs)
-exec Eqrr (Opcode [_, a, b, c]) (Registers regs) = Registers (replace c (eq (regs !! a) (regs !! b)) regs)
-
 correct :: Opcode -> Registers -> Registers -> Instruction -> Bool
-correct opcode regBefore regAfter instr = exec instr opcode regBefore == regAfter
+correct (Opcode codes) regBefore regAfter instr = exec (instr, tail codes) regBefore == regAfter
 
 correctFor :: [Capture] -> [([Instruction], Capture)]
 correctFor = map (\c -> (correctForI c, c))
@@ -94,7 +59,7 @@ execProgram _ regs [] = regs
 execProgram mapping regs (oc:rest) = execProgram mapping regs2 rest
   where
       doOp :: Opcode -> Registers -> Registers
-      doOp oc@(Opcode (code:_)) regs = exec (mapping Map.! code) oc regs
+      doOp (Opcode (code:codes)) rs = exec ((mapping Map.! code), codes) rs
       regs2 = doOp oc regs
 
 disas ::  Map.Map Int Instruction -> [Opcode] -> [String]

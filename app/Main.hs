@@ -1,6 +1,7 @@
 module Main where
 
 import Challenge
+import Elfcode
 import Year2018.Day16
 
 runChallenge :: IO ()

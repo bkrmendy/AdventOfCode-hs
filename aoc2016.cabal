@@ -29,6 +29,7 @@ library
       Utils
       Year2018.Day16
       Intcode
+      Elfcode
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
