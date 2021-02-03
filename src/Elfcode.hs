@@ -3,6 +3,8 @@ module Elfcode (
   , Opcode(Opcode)
   , Instruction(Addr, Addi, Mulr, Muli, Banr, Bani, Borr, Bori, Setr, Seti, Gtir, Gtri, Gtrr, Eqir, Eqri, Eqrr)
   , exec
+  , fromString
+  , execute
 ) where
 import Utils (replace)
 import Data.Bits ((.&.), (.|.))
@@ -10,6 +12,28 @@ import Data.Bits ((.&.), (.|.))
 newtype Registers = Registers { unRegisters :: [Int] } deriving (Eq, Show)
 newtype Opcode = Opcode [Int] deriving Show
 data Instruction = Addr | Addi | Mulr | Muli | Banr | Bani | Borr | Bori | Setr | Seti | Gtir | Gtri | Gtrr | Eqir | Eqri | Eqrr deriving (Eq, Show)
+
+fromString :: String -> Instruction
+fromString "addi" = Addi
+fromString "addr" = Addr
+
+fromString "mulr" = Mulr
+fromString "muli" = Muli
+
+fromString "seti" = Seti
+fromString "setr" = Setr
+
+fromString "eqrr" = Eqrr
+fromString "eqri" = Eqri
+
+fromString "gtrr" = Gtrr
+fromString "gtir" = Gtir
+fromString "gtri" = Gtri
+
+fromString "bani" = Bani
+fromString "bori" = Bori
+
+fromString m      = error ("Unrecognized mnemonic: " ++ show m)
 
 gt :: Int -> Int -> Int
 gt a b = if a > b then 1 else 0
@@ -40,3 +64,15 @@ exec (Bani, [a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) .&. 
 
 exec (Borr, [a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) .|. (regs !! b)) regs)
 exec (Bori, [a, b, c]) (Registers regs) = Registers (replace c ((regs !! a) .|. b          ) regs)
+
+executeTrace :: Registers -> (Int, [(Instruction, [Int])]) -> [Registers]
+executeTrace (Registers regs) (ip, instrs)
+  | pc >= length instrs = [Registers regs]
+  | otherwise = Registers regsUpdated:executeTrace (Registers regsUpdated) (ip, instrs)
+      where
+        pc = regs !! ip
+        (Registers regs2) = exec (instrs !! pc) (Registers regs)
+        regsUpdated = replace ip ((regs2 !! ip) + 1) regs2
+        
+execute :: Registers -> (Int, [(Instruction, [Int])]) -> Registers
+execute r i = last $ executeTrace r i

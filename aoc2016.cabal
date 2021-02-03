@@ -27,7 +27,7 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2018.Day19
+      Year2018.Day21
       Intcode
       Elfcode
   other-modules:
