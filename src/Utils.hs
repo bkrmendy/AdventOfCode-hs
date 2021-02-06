@@ -138,3 +138,18 @@ manhattan (a, b) = abs a + abs b
 
 toInt :: Float -> Int
 toInt x = round x
+
+sgn :: Int -> Int
+sgn i
+  | i < 0 = -1
+  | i > 0 = 1
+  | otherwise = 0
+
+fst :: (a, a, a) -> a
+fst (v, _, _) = v
+
+snd :: (a, a, a) -> a
+snd (_, v, _) = v
+
+thd :: (a, a, a) -> a
+thd (_, _, v) = v
