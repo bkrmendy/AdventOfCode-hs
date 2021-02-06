@@ -1,10 +1,9 @@
 module Utils where
 
 import Text.Parsec as Parsec
-import qualified Data.Map as Map
 import Control.Monad (zipWithM)
 import Data.Char (digitToInt)
-import Data.List (foldl', find)
+import Data.List (foldl')
 import Data.Word8
 import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Base16 as B16
@@ -85,27 +84,15 @@ parseLines parser = parseI
 fromBinaryString :: String -> Int
 fromBinaryString = foldl' (\acc x -> acc * 2 + digitToInt x) 0
 
--- | UNWRAP
-
-unsafeGet :: (Ord k) => k -> Map.Map k a -> a
-unsafeGet = Map.findWithDefault undefined
-
-unsafeFromMaybe :: Maybe a -> a
-unsafeFromMaybe m =
-  case m of
-    Nothing -> error "Maybe contains no value!"
-    Just something -> something
-    
 -- | HASH
-hash :: Bs.ByteString -> Bs.ByteString
-hash = Bs.pack . map toLower . Bs.unpack . B16.encode . MD5.hash
+md5 :: Bs.ByteString -> Bs.ByteString
+md5 = Bs.pack . map toLower . Bs.unpack . B16.encode . MD5.hash
 
 -- | Combinator
-ps :: (t1 -> t2 -> t3) -> (t1 -> t2) -> t1 -> t3
-ps f g x = f x (g x)
+s :: (t1 -> t2 -> t3) -> (t1 -> t2) -> t1 -> t3
+s f g x = f x (g x)
 
- 
--- | CHINESE REMAINDER THEOREM
+-- | MATH
 -- ^ adapted from https://rosettacode.org/wiki/Chinese_remainder_theorem#Haskell
 chineseRemainder :: [Integer] -> [Integer] -> Maybe Integer
 chineseRemainder residues modulii =
@@ -144,6 +131,9 @@ sgn i
   | i < 0 = -1
   | i > 0 = 1
   | otherwise = 0
+
+-- | TRIPLE FUNCTIONS
+-- ^ (a, a, a)
 
 fst :: (a, a, a) -> a
 fst (v, _, _) = v

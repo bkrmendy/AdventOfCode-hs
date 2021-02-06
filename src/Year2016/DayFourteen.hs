@@ -10,7 +10,7 @@ newtype Salt = Salt { unSalt :: Bs.ByteString }
 
 keyStretchHash :: Int -> Bs.ByteString -> Bs.ByteString
 keyStretchHash 0 str = str
-keyStretchHash n str = keyStretchHash (n - 1) (hash str)  
+keyStretchHash n str = keyStretchHash (n - 1) (md5 str)
 
 mush :: Salt -> Int -> Bs.ByteString
 mush (Salt s) = Bs.append s . BLU.fromString . show

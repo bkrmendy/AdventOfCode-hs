@@ -6,7 +6,7 @@ import Data.List
 import Data.Function
 import qualified Data.ByteString as Bs
 import qualified Data.ByteString.UTF8 as BLU
-import Utils
+import Utils hiding (fst, snd)
 
 newtype Passcode = Passcode { unPasscode :: Bs.ByteString }
 
@@ -43,13 +43,13 @@ move Left (row, column) = (row, column - 1)
 move Right (row, column) = (row, column + 1)
 
 paths :: Passcode -> [Bs.ByteString]
-paths passcode = search (1, 1) (Bs.pack [])
+paths (Passcode passcode) = search (1, 1) (Bs.pack [])
   where
     search :: (Int, Int) -> Bs.ByteString -> [Bs.ByteString]
     search position path
       | position == (4, 4) = [path]
       | otherwise =
-        hash (Bs.append (unPasscode passcode) path) -- get hash from concatenated passcode and path
+        md5 (Bs.append passcode path) -- get hash from concatenated passcode and path
         & Bs.take 4 -- first 4 chars of hash
         & Bs.unpack -- unpack to list
         & directions -- get available directions

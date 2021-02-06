@@ -54,8 +54,8 @@ bfs grid queue seen
 tsp :: [Edge] -> (Int, Int)
 tsp edges = (path, cycle)
   where
-    path = minimum $ map (\ps -> edge 0 (head ps) + walk ps) (permutations [0..7])
-    cycle = minimum $ map (\ps -> edge 0 (head ps) + walk ps + edge (last ps) 0) (permutations [0..7])
+    path = minimum $ map (\s -> edge 0 (head s) + walk s) (permutations [0..7])
+    cycle = minimum $ map (\s -> edge 0 (head s) + walk s + edge (last s) 0) (permutations [0..7])
     edge src dst = head [d | Edge f t d <- edges
                            , f == src
                            , t == dst]
