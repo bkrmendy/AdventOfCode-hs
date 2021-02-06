@@ -7,7 +7,7 @@ import qualified Data.Set as Set
 type Grid = Set.Set (Float, Float)
 
 slope :: (Float, Float) -> (Float, Float) -> Float
-slope (r1, c1) (r2, c2) = atan2 (negate (c1 - c2)) (id (r1 - r2))
+slope (r1, c1) (r2, c2) = atan2 (negate (c1 - c2)) (r1 - r2)
 
 distance :: (Float, Float) -> (Float, Float) -> Float
 distance (a, b) (x, y) = sqrt ((a - x) ^ 2 + (b - y) ^ 2)
@@ -46,5 +46,5 @@ fromCoord (r, c) = c * 100 + r
 
 instance Challenge Grid where
   parse = fromLines . lines
-  partOne = show . maximum . stationCandidates
+  partOne = show . fst . maximum . stationCandidates
   partTwo = show . fromCoord . partTwoI
