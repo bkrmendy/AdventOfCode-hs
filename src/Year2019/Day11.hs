@@ -23,19 +23,20 @@ toColor 0 = Black
 toColor 1 = White
 toColor c = error ("Unrecognized color: " ++ show c)
 
-fromColor :: Color -> Int
-fromColor Black = 0
-fromColor White = 1
+colorToInt :: Color -> Int
+colorToInt Black = 0
+colorToInt White = 1
+
+colorToChar :: Color -> Char
+colorToChar Black = ' '
+colorToChar White = '#'
 
 type Grid = Map.Map (Int, Int) Color
 
 data WalkState = WalkState { _grid :: Grid
                            , _position :: (Int, Int)
-                           , _direction :: Direction }
-
--- update grid with new color and position
--- change direction
--- move forward
+                           , _direction :: Direction
+                           }
 
 paint :: Color -> WalkState -> WalkState
 paint color (WalkState grid pos dir) = WalkState grid2 pos dir
@@ -52,7 +53,7 @@ step dir color = proceed . chDir dir . paint color
 
 walk :: WalkState -> State IC.ProcessState Grid
 walk walkState@(WalkState grid position _) = do
-  IC.addProcessInputs [fromColor $ Map.findWithDefault White position grid]
+  IC.addProcessInputs [colorToInt $ Map.findWithDefault Black position grid]
   out <- IC.continueExecution
   halted <- IC.hasShutDown
   if halted
@@ -61,12 +62,21 @@ walk walkState@(WalkState grid position _) = do
       [color, dir] -> walk (step (toTurnCommand dir) (toColor color) walkState)
       _ -> error "incomplete output"
 
-partOneI :: IC.Program -> Grid
-partOneI program = evalState (walk startingState) (IC.initializeProcess program [])
+makeGrid :: Grid -> IC.Program -> Grid
+makeGrid startGrid program = evalState (walk startingState) (IC.initializeProcess program [])
   where
-    startingState = WalkState Map.empty (0, 0) (Direction { _drow = -1, _dcol = 0 })
+    startingState = WalkState startGrid (0, 0) (Direction { _drow = -1, _dcol = 0 })
+
+drawGrid :: Grid -> String
+drawGrid grid = unlines rows
+  where
+    minRow = minimum $ map fst $ Map.keys grid
+    maxRow = maximum $ map fst $ Map.keys grid
+    minCol = minimum $ map snd $ Map.keys grid
+    maxCol = maximum $ map snd $ Map.keys grid
+    rows = [[colorToChar (Map.findWithDefault Black (row, col) grid) | col <- [minCol..maxCol]] | row <- [minRow..maxRow]]
 
 instance Challenge IC.Program where
   parse = IC.fromString
-  partOne = show . Map.size . partOneI
-  partTwo = show . length . IC.unProgram
+  partOne = show . Map.size . makeGrid (Map.singleton (0, 0) Black)
+  partTwo = drawGrid . makeGrid (Map.singleton (0, 0) White) -- (Björk, Lopez Jennfier, Uther Pendragon)
