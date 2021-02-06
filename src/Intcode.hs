@@ -9,6 +9,9 @@ module Intcode (
   , initializeProcess
   , runCode
   , addProcessInputs
+  , hasShutDown
+  , isRunning
+  , erroredOut
 ) where
 import Data.List.Split (splitOn)
 import qualified Data.HashMap.Strict as Map
@@ -58,13 +61,18 @@ data ProcessState = ProcessState { _memory :: Memory
 processStatus :: State ProcessState ExecutionState
 processStatus = gets _status
 
+erroredOut :: State ProcessState Bool
+erroredOut = do
+  thisStatus <- processStatus
+  case thisStatus of
+    Error  -> return True
+    _      -> return False
 
 hasShutDown :: State ProcessState Bool
 hasShutDown = do
   thisStatus <- processStatus
   case thisStatus of
     Terminated  -> return True
-    Error       -> return True
     _           -> return False
 
 isRunning :: State ProcessState Bool
