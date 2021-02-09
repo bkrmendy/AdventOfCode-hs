@@ -17,43 +17,31 @@ parseI :: Parsec String () ([Element], Element)
 parseI = (,) <$> sepBy1 parseElement (string ", ") <*> (string " => " *> parseElement)
 
 makeQuantity :: Int -> Int -> Int
-makeQuantity needed quantum
-  | needed <= quantum = 1
-  | otherwise = 1 + makeQuantity (needed - quantum) quantum
+makeQuantity needed quantum = ceiling (toRational needed / toRational quantum)
 
-mergeWithAdd :: Map.Map String Int -> Map.Map String Int -> Map.Map String Int
-mergeWithAdd mapA mapB = foldr merge mapA (Map.assocs mapB)
+amountOfOreNeeded :: [Element] -> Map.Map String Int -> Catalog -> Int
+amountOfOreNeeded [] _ _ = 0
+amountOfOreNeeded (Element amount "ORE":workList) cache catalog = amount + amountOfOreNeeded workList cache catalog
+amountOfOreNeeded (Element amount name:workList) cache catalog
+  | amountFromCache >= amount = amountOfOreNeeded workList (updateCache name (amountFromCache - amount)) catalog
+  | otherwise =
+      amountOfOreNeeded (workList ++ componentsAdjusted) (updateCache name (max 0 $ quantum * quantity - amountNeeded)) catalog
   where
-    merge :: (String, Int) -> Map.Map String Int -> Map.Map String Int
-    merge (k, v) m = Map.insert k (Map.findWithDefault 0 k m + v) m
-
-basics :: Catalog -> Map.Map String (Int, Int)
-basics catalog = Map.fromList elems
-  where
-    elems = [(element, (cost, quantum)) | (element, (quantum, [Element cost "ORE"])) <- Map.assocs catalog]
-
-basicElementsFor :: Catalog -> Element -> Map.Map String Int
-basicElementsFor catalog (Element quantity element)
-  | _material (head elementsFromCatalog) == "ORE" = Map.singleton element quantity -- element is basic
-  | otherwise = Map.map (* makeQuantity quantity q)
-                $ foldr mergeWithAdd Map.empty
-                $ map (basicElementsFor catalog) elementsFromCatalog
+    amountFromCache = Map.findWithDefault 0 name cache
+    amountNeeded = amount - amountFromCache
+    updateCache ename eamount = Map.insert ename eamount cache
+    (quantum, components) = catalog Map.! name
+    quantity = makeQuantity amountNeeded quantum
+    componentsAdjusted = map (\(Element q n) -> Element (q * quantity) n) components
+    
+maxFuelFrom :: Int -> Int -> Catalog -> Int
+maxFuelFrom ore fuel catalog
+  | newFuel == fuel = fuel
+  | otherwise = maxFuelFrom ore newFuel catalog
     where
-      (q, elementsFromCatalog) = catalog Map.! element
-
-consume :: Map.Map String Int -> Map.Map String (Int, Int) -> Int
-consume ingredients basics = sum $ map consumeI (Map.assocs ingredients)
-  where
-    consumeI :: (String, Int) -> Int
-    consumeI (element, quantity) =
-      let (cost, quantum) = basics Map.! element
-      in cost * makeQuantity quantity quantum
-
-totalMaterialsNeeded :: Element -> Catalog -> Int
-totalMaterialsNeeded element catalog = consume totalBasics (basics catalog)
-    where
-      totalBasics = basicElementsFor catalog element
+      newFuel = round (toRational ore / toRational (amountOfOreNeeded [Element fuel "FUEL"] Map.empty catalog) * toRational fuel)
 
 instance Challenge Catalog where
-  parse = Map.fromList . map (\(a, Element q e) -> (e, (q, a))). parseLines (sepBy1 parseI newline)
-  partOne = show . totalMaterialsNeeded (Element 1 "FUEL")
+  parse = Map.fromList . map (\(es, Element amount name) -> (name, (amount, es))). parseLines (sepBy1 parseI newline)
+  partOne = show . amountOfOreNeeded [Element 1 "FUEL"] Map.empty
+  partTwo = show . maxFuelFrom 1000000000000 1
