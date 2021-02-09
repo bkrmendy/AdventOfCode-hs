@@ -27,7 +27,7 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2019.Day13
+      Year2019.Day14
       Intcode
   other-modules:
       Paths_aoc2016
