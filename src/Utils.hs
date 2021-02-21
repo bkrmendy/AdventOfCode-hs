@@ -15,6 +15,15 @@ transpose :: [[a]] -> [[a]]
 transpose ([]:_) = []
 transpose x = map head x : transpose (map tail x)
 
+ns :: (Show a) => Int -> [a] -> [[a]]
+ns n xs
+  | length xs < n = error ("Too short: " ++ show xs)
+  | length xs == n = [xs]
+  | otherwise = take 3 xs : ns n (drop 1 xs)
+
+threes :: (Show a) => [a] -> [[a]]
+threes = ns 3
+
 -- ^ https://stackoverflow.com/a/21288092
 subsequencesOfSize :: Int -> [a] -> [[a]]
 subsequencesOfSize n xs = let l = length xs

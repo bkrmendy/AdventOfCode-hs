@@ -1,9 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module DaySeven where
-
+module Year2016.DaySeven where
 import Challenge
-
+import Utils
 import Text.Parsec as Parsec
 import Data.List (partition, isInfixOf)
 
@@ -77,11 +76,6 @@ isTriple triple =
     then error "Triple must be 3 characters long"
     else let [a, b, c] = triple
           in a == c
-          
-threes :: String -> [String]
-threes [a,b,c] = [[a,b,c]]
-threes (a:b:c:rest) = [a,b,c]:threes (b:c:rest)
-threes str = error ("Too short: " ++ str)
 
 supportsSSL :: IPv7 -> Bool
 supportsSSL ip =

@@ -27,7 +27,7 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2019.Day15
+      Year2019.Day17
       Intcode
   other-modules:
       Paths_aoc2016
@@ -37,13 +37,14 @@ library
       src/Year2016/
   build-depends:
       base >=4.7 && <5
-      , text
+      , array
+      , bytestring
       , containers
+      , text
       , hashable
       , unordered-containers
       , split
       , cryptohash-md5
-      , bytestring
       , parsec
       , regex-tdfa
       , regex-tdfa-text
@@ -52,7 +53,6 @@ library
       , base16-bytestring
       , digits
       , mtl
-      , array
   default-language: Haskell2010
 
 executable aoc2016-exe
@@ -65,6 +65,7 @@ executable aoc2016-exe
   build-depends:
       aoc2016
     , base >=4.7 && <5
+    , filepath
   default-language: Haskell2010
 
 test-suite aoc2016-test
