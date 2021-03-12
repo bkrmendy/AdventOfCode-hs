@@ -45,8 +45,11 @@ insert a 0 elems = a:elems
 insert _ _ [] = []
 insert a n (hd:rest) = hd : insert a (pred n) rest
 
+countWhere :: (a -> Bool) -> [a] -> Int
+countWhere f = length . filter f
+
 count :: Eq a => a -> [a] -> Int
-count x = length . filter (x==)
+count x = countWhere (x ==)
 
 -- | SET
 listify :: (Ord a) => (a -> Set.Set a -> Set.Set a) -> [a] -> Set.Set a -> Set.Set a
