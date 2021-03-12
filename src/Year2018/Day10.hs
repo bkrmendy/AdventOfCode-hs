@@ -4,10 +4,6 @@ import Text.Parsec
 import Utils
 import Challenge
 
-import Debug.Trace
-
-import qualified Data.Map as Map
-
 data Position = Position { _col :: Int, _row :: Int} deriving (Eq, Ord)
 data Velocity = Velocity { _dcol :: Int, _drow :: Int} deriving (Eq, Ord)
 data Point = Point { _pos :: Position, _vel :: Velocity }
