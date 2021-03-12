@@ -21,7 +21,7 @@ advance (Position c r) (Velocity dc dr) = Position (c + dc) (r + dr)
 
 step :: Int -> [Point] -> [[Point]]
 step area field
-  | nextArea > area = []
+  | nextArea > area = [field]
   | otherwise = field:step nextArea nextField -- ^ memory go brrr
     where
       nextField = [Point (advance pos vel) vel | (Point pos vel) <- field]
