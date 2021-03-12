@@ -11,6 +11,9 @@ import qualified Crypto.Hash.MD5 as MD5
 import qualified Data.Set as Set
 
 -- | LISTS
+notNull :: Foldable t => t a -> Bool
+notNull = not . null
+
 transpose :: [[a]] -> [[a]]
 transpose ([]:_) = []
 transpose x = map head x : transpose (map tail x)
