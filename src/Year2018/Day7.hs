@@ -2,93 +2,77 @@
 
 module Year2018.Day7 where
 import Challenge
-import Utils (parseLines)
+import Utils (parseLines, insertL, ensureE)
 import Data.Char (ord)
+import Data.List (partition, nub)
+import Debug.Trace
 import qualified Data.Map as Map
-
 import Text.Parsec
 
 data Depends = Depends { _before :: Char, _after :: Char }
 
-data Node = Node { _ins :: [Char], _outs :: [Char] }
+newtype Graph = Graph { _unGraph :: Map.Map Char [Char] } deriving Show
 
-newtype Graph = Graph { _nodes :: Map.Map Char Node }
-
-parseI :: Parsec String () Depends
-parseI = Depends <$> (string "Step " *> letter) <*> (string " must be finished before step " *> letter <* string " can begin.")
-
-putInEdge :: Char -> Char -> Graph -> Graph
-putInEdge from to (Graph nodes) = Graph $ Map.insert to (Node (from:ins) outs) nodes
-  where
-    (Node ins outs) = Map.findWithDefault (Node [] []) to nodes
-
-putOutEdge :: Char -> Char -> Graph -> Graph
-putOutEdge from to (Graph nodes) = Graph $ Map.insert from (Node ins (to:outs)) nodes
-  where
-   (Node ins outs) = Map.findWithDefault (Node [] []) from nodes
-
-insertGraph :: Depends -> Graph -> Graph
-insertGraph (Depends finished before) = putInEdge finished before . putOutEdge finished before
+parseDependency :: Parsec String () Depends
+parseDependency = Depends <$> (string "Step " *> letter)
+                          <*> (string " must be finished before step " *> letter <* string " can begin.")
 
 toGraph :: [Depends] -> Graph
-toGraph deps = go deps (Graph Map.empty)
+toGraph = Graph . go Map.empty
   where
-    go []         graph = graph
-    go (dep:rest) graph = go rest (insertGraph dep graph)
+    go nodes [] = nodes
+    go nodes (Depends part dependsOnPart:rest) = go (nextNodes nodes) rest
+      where
+        nextNodes = insertL dependsOnPart part . ensureE part . ensureE dependsOnPart
 
-removeFromGraph :: Char -> Graph -> (Node, Graph)
-removeFromGraph k (Graph nodes) = (node, Graph newGraph)
+removeNode :: Char -> Graph -> Graph
+removeNode k g@(Graph nodes) = case Map.lookup k nodes of
+    Nothing -> g
+    Just deps -> Graph newGraph
   where
-    node = nodes Map.! k
-    newGraph = Map.fromList [(key, Node (filter (/= k) ins) outs) | (key, Node ins outs) <- Map.assocs nodes
-                                                                  , key /= k]
+    newGraph = Map.fromList [(key, filter (/= k) deps) | (key, deps) <- Map.assocs nodes, key /= k]
 
-popNode :: Graph -> (Char, Node, Graph)
-popNode g@(Graph nodes) = (step, node, nextGraph)
+popNode :: Graph -> (Char, Graph)
+popNode graph = (step, nextGraph)
   where
-    (step, node) = Map.findMin (Map.filter (null . _ins) nodes)
-    (_, nextGraph) = removeFromGraph step g
+    step = head $ availableNodes graph
+    nextGraph = removeNode step graph
+
+availableNodes :: Graph -> [Char]
+availableNodes = Map.keys . Map.filter null . _unGraph
 
 topo :: Graph -> [Char]
 topo g@(Graph nodes)
   | Map.null nodes = []
   | otherwise = step:topo nextGraph
-    where
-      (step, _, nextGraph) = popNode g
+    where (step, nextGraph) = popNode g
 
-workTime :: Char -> Int
-workTime c = 61 + ord c - ord 'A'
+workTime :: Int -> Char -> Int
+workTime i c = ord c - ord 'A' + i
 
-type JobQueue = (Char, Int)
+kickOff :: (Char -> Int) -> Int -> Graph -> Int
+kickOff costF nWorkers graph = construct [(c, costF c) | c <- avail] costF nWorkers 0 graph
+  where avail = availableNodes graph
 
-kickOff :: Int -> Graph -> Int
-kickOff nWorkers graph = construct [(c, workTime c)] nWorkers 0 graph
-  where
-    (c, _, _) = popNode graph
+type JobQueue = [(Char, Int)]
 
-peel :: [Char] -> Graph -> [Char]
-peel [] _ = []
-peel (c:rest) graph = outs <> peel rest g
-  where
-     (Node _ outs, g) = removeFromGraph c graph 
-
-construct :: [JobQueue]   -- ^ Job queue
+construct :: JobQueue     -- ^ Job queue
+          -> (Char -> Int)-- ^ cost function
           -> Int          -- ^ number of workers
           -> Int          -- ^ current time
           -> Graph        -- ^ graph
           -> Int          -- ^ total time
-construct [] _ time _ = time
-construct queue workers time graph
-  | null (done queue) = construct (advance (take workers queue) <> drop workers queue) workers (time + 1) graph
-  | otherwise = construct (advance (nuQueue queue)) workers (time + 1) graph
+construct [] _ _ time _               = time
+construct queue costF workers time graph = trace (show queue) $ construct nextQueue costF workers (time + 1) nextGraph
     where
+      (done, inProgress) = partition ((<= 0) . snd) queue
+      nextGraph = foldr (removeNode . fst) graph done
+      outs = availableNodes nextGraph
+      inProgressNodes = map fst inProgress
+      nextQueue = advance inProgress <> [(o, costF o) | o <- filter (`notElem` inProgressNodes) (nub outs)]
       advance q = [(c, i - 1) | (c, i) <- take workers q] <> drop workers q
-      done q = [c | (c, i) <- q, i < 0]
-      outs = foldr _ graph (done queue)
-      nuQueue q = [(c, i) | (c, i) <- q, i >= 0] <> outs
-      
 
 instance Challenge [Depends] where
-  parse = parseLines (sepBy1 parseI newline)
+  parse = parseLines (sepBy1 parseDependency newline)
   partOne = topo . toGraph
-  partTwo = show . kickOff 5 . toGraph
+  partTwo = show . kickOff (workTime 60) 5 . toGraph

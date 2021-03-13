@@ -9,6 +9,7 @@ import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Base16 as B16
 import qualified Crypto.Hash.MD5 as MD5
 import qualified Data.Set as Set
+import qualified Data.Map as Map
 
 -- | LISTS
 transpose :: [[a]] -> [[a]]
@@ -61,6 +62,20 @@ inserts = listify Set.insert
 
 deletes :: (Ord a) => [a] -> Set.Set a -> Set.Set a
 deletes = listify Set.delete
+
+-- | MAP
+
+insertL :: (Ord k) => k -> a -> Map.Map k [a] -> Map.Map k [a]
+insertL key val m =
+  case Map.lookup key m of
+    Nothing -> Map.insert key [val] m
+    Just elems -> Map.insert key (val:elems) m
+
+ensureE :: (Ord k) => k -> Map.Map k [a] -> Map.Map k [a]
+ensureE key m =
+  case Map.lookup key m of
+    Nothing -> Map.insert key [] m
+    Just _ -> m
 
 -- | PARSING
 
