@@ -5,7 +5,6 @@ import Challenge
 import Utils (parseLines, insertL, ensureE)
 import Data.Char (ord)
 import Data.List (partition, nub)
-import Debug.Trace
 import qualified Data.Map as Map
 import Text.Parsec
 
@@ -63,7 +62,7 @@ construct :: JobQueue     -- ^ Job queue
           -> Graph        -- ^ graph
           -> Int          -- ^ total time
 construct [] _ _ time _               = time
-construct queue costF workers time graph = trace (show queue) $ construct nextQueue costF workers (time + 1) nextGraph
+construct queue costF workers time graph = construct nextQueue costF workers (time + 1) nextGraph
     where
       (done, inProgress) = partition ((<= 0) . snd) queue
       nextGraph = foldr (removeNode . fst) graph done
