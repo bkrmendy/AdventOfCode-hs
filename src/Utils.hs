@@ -28,6 +28,9 @@ subsequencesOfSize n xs = let l = length xs
    subsequencesBySize (x:xs) = let next = subsequencesBySize xs
                              in zipWith (++) ([]:next) (map (map (x:)) next ++ [[]])
 
+sum2D :: (Num a) => [[a]] -> a
+sum2D xs = sum [sum ys | ys <- xs]
+
 -- ^ https://stackoverflow.com/a/60380502
 replace :: (Num a, Enum a, Eq a) => a -> c -> [c] -> [c]
 replace index element = zipWith (curry transform) [0 ..]
