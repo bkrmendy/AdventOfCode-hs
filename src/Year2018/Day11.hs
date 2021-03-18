@@ -2,6 +2,7 @@ module Year2018.Day11 where
 import Challenge
 import Utils (sum2D)
 import Data.List (sortOn, intercalate)
+import Data.Array as A
 
 powerLevel :: Int -> Int -> Int -> Int
 powerLevel gsn x y = final
@@ -11,47 +12,51 @@ powerLevel gsn x y = final
     hundreds = powerLevelInitial `div` 100 `mod` 10
     final = hundreds - 5
 
-mkGrid :: Int -> [[Int]]
-mkGrid gsn = [[ powerLevel gsn col row | col <- [1..300]] | row <- [1..300]]
+type Grid = Array (Int, Int) Int
 
-summedAreaGrid :: [[Int]] -> [[Int]]
-summedAreaGrid grid = [[_ | col <- [1..300] | row <- [1..300]]
+(!?) :: Ix i => Array i e -> e -> i -> e
+(!?) a def idx = if A.inRange (bounds a) idx then a ! idx else def
+
+mkGrid :: Int -> Grid
+mkGrid gsn = array ((1, 1), (300, 300)) [ ((col, row), powerLevel gsn col row) | col <- [1..300], row <- [1..300]]
+
+summedAreaGrid :: Grid -> Grid
+summedAreaGrid grid = array ((1, 1), (300, 300)) [((col, row), value (col, row)) | col <- [1..300], row <- [1..300]]
+  where value (c, r) = sum [grid ! (c', r') | c' <- [1..c], r' <- [1..r]]
+
+type Window = ((Int, Int), Int, Int)
+
+windows :: Int -> Grid -> [Window]
+windows size grid = [((col, row), area (col, row) (col + size - 1, row + size - 1), size) | col <- [1..300-size]
+                                                                                          , row <- [1..300-size]]
   where
-    
+    area (cMin, rMin) (cMax, rMax) = grid ! (cMax, rMax)
+                                     + (!?) grid 0 (cMin - 1, rMin - 1)
+                                     - (!?) grid 0 (cMin - 1, rMax)
+                                     - (!?) grid 0 (cMax, rMin - 1)
 
-cutWindow :: (Int, Int)
-          -> (Int, Int)
-          -> [[Int]]
-          -> [[Int]]
-cutWindow (width, height) (col, row) grid = [take size $ drop col r | r <- rows]
-  where rows = take size $ drop row grid
+windowsSmall :: Int -> Grid -> [Window]
+windowsSmall size grid = [((col, row), area (col, row), size) | col <- [1..300-size+1], row <- [1..300-size+1]]
+  where
+    area (col, row) = sum [grid ! (c, r) | c <- [col..col + size - 1], r <- [row..row + size - 1]]
 
-windows :: Int        -- ^ window size
-        -> [[Int]]    -- ^ grid
-        -> [Window]   -- ^ (X, Y, window)
-windows _               [] = []
-windows size grid
-  | length grid < size || length (head grid) < size = []
-  | otherwise = [(size, x + 1, y + 1, cutWindow (size, size) (x, y) grid) | x <- [1..maxCol], y <- [1..maxRow]]
-    where
-      maxCol = length (head grid) - size
-      maxRow = length grid - size
-
-type Window = (Int, Int, Int, [[Int]])
+allWindows :: [Int] -> Grid -> [Window]
+allWindows sz grid = map (maxWindow . flip windows grid) sz
 
 displayPartOne :: Window -> String
-displayPartOne (_, x, y, _) = intercalate "," [show x, show y]
+displayPartOne ((x, y), _, _) = intercalate "," (map show [x, y])
 
 displayPartTwo :: Window -> String
-displayPartTwo (s, x, y, _) = intercalate "," [show s, show x, show y]
+displayPartTwo ((x, y), _, size) = intercalate "," (map show [x, y, size])
 
-windowSum :: Window -> Int
-windowSum (_, _, _, w) = sum2D w
-
-bestWindow :: [Window] -> Window
-bestWindow = head . sortOn (negate . windowSum)
+maxWindow :: [Window] -> Window
+maxWindow [] = ((0, 0), 0, 0)
+maxWindow (a:as) = foldr go a as
+  where
+    go :: Window -> Window -> Window
+    go p@(_, thisVal, _) n@(_, nextVal, _) = if nextVal > thisVal then n else p
 
 instance Challenge Int where
   parse i = read i :: Int
-  partOne = displayPartOne . bestWindow . windows 3 . mkGrid
-  partTwo = displayPartTwo . bestSizedWindow . mkGrid
+  partOne = displayPartOne . maxWindow . windows 3 . summedAreaGrid . mkGrid
+  partTwo = displayPartTwo . maxWindow . allWindows [1..300] . summedAreaGrid . mkGrid
