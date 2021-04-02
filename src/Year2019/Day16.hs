@@ -10,7 +10,7 @@ patterns = [generatePattern n | n <- [1..]]
     generatePattern n = drop 1 (concatMap (replicate n) basePattern)
 
 phase :: [Int] -> [Int] -> Int
-phase = (`mod` 10) . abs . sum . zipWith (*)
+phase xs ys = (`mod` 10) . abs . sum $ zipWith (*) xs ys
 
 fft :: [Int] -> [[Int]]
 fft series = thisPhase:fft thisPhase
