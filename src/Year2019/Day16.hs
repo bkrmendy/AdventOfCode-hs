@@ -10,7 +10,7 @@ patterns = [generatePattern n | n <- [1..]]
     generatePattern n = drop 1 (concatMap (replicate n) basePattern)
 
 phase :: [Int] -> [Int] -> Int
-phase xs ys = (`mod` 10) $ abs $ sum $ zipWith (*) xs ys
+phase = (`mod` 10) . abs . sum . zipWith (*)
 
 fft :: [Int] -> [[Int]]
 fft series = thisPhase:fft thisPhase
@@ -19,8 +19,6 @@ fft series = thisPhase:fft thisPhase
 
 partTwoI :: [String] -> [Int]
 partTwoI input = undefined
-    
-    
 
 instance Challenge [Int] where
   parse = map digitToInt
