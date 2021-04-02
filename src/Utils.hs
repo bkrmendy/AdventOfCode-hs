@@ -9,8 +9,12 @@ import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Base16 as B16
 import qualified Crypto.Hash.MD5 as MD5
 import qualified Data.Set as Set
+import qualified Data.Map as Map
 
 -- | LISTS
+notNull :: Foldable t => t a -> Bool
+notNull = not . null
+
 transpose :: [[a]] -> [[a]]
 transpose ([]:_) = []
 transpose x = map head x : transpose (map tail x)
@@ -33,6 +37,9 @@ subsequencesOfSize n xs = let l = length xs
    subsequencesBySize (x:xs) = let next = subsequencesBySize xs
                              in zipWith (++) ([]:next) (map (map (x:)) next ++ [[]])
 
+sum2D :: (Num a) => [[a]] -> a
+sum2D xs = sum [sum ys | ys <- xs]
+
 -- ^ https://stackoverflow.com/a/60380502
 replace :: (Num a, Enum a, Eq a) => a -> c -> [c] -> [c]
 replace index element = zipWith (curry transform) [0 ..]
@@ -54,8 +61,11 @@ insert a 0 elems = a:elems
 insert _ _ [] = []
 insert a n (hd:rest) = hd : insert a (pred n) rest
 
+countWhere :: (a -> Bool) -> [a] -> Int
+countWhere f = length . filter f
+
 count :: Eq a => a -> [a] -> Int
-count x = length . filter (x==)
+count x = countWhere (x ==)
 
 -- | SET
 listify :: (Ord a) => (a -> Set.Set a -> Set.Set a) -> [a] -> Set.Set a -> Set.Set a
@@ -67,6 +77,20 @@ inserts = listify Set.insert
 
 deletes :: (Ord a) => [a] -> Set.Set a -> Set.Set a
 deletes = listify Set.delete
+
+-- | MAP
+
+insertL :: (Ord k) => k -> a -> Map.Map k [a] -> Map.Map k [a]
+insertL key val m =
+  case Map.lookup key m of
+    Nothing -> Map.insert key [val] m
+    Just elems -> Map.insert key (val:elems) m
+
+ensureE :: (Ord k) => k -> Map.Map k [a] -> Map.Map k [a]
+ensureE key m =
+  case Map.lookup key m of
+    Nothing -> Map.insert key [] m
+    Just _ -> m
 
 -- | PARSING
 
