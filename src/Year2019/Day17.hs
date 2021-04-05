@@ -25,12 +25,29 @@ crossings grid = concat $ zipWith scan (threes grid) [1..]
 makeMap :: IC.Program -> [String]
 makeMap = filter (not . null) . splitOn "\n" . map chr . IC.executeCode []
 
-toAscii :: String -> [Int]
-toAscii = map ord
+data Step = F | R | L
 
-program :: [String]
-program = [  
-          ]
+data Instr = MoveForward Int | TurnLeft | TurnRight
+
+walk :: [String] -> [Step]
+walk = undefined
+
+toInstrs :: [Step] -> [Instr]
+toInstrs = go []
+  where
+    go acc [] = reverse acc
+    go acc (L:rest) = go (TurnLeft:acc) rest
+    go acc (R:rest) = go (TurnRight:acc) rest
+    go (MoveForward n:acc) (_:rest) = go (MoveForward (n+1):acc) rest
+    go acc (_:rest) = go (MoveForward 1:acc) rest
+
+
+-- group???
+
+
+-- | TODO:
+--      - refactor to 2D Array
+
 
 instance Challenge IC.Program where
   parse = IC.fromString
