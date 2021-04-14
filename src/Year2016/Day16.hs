@@ -1,4 +1,4 @@
-module DaySixteen where
+module Day16 where
 
 import Challenge
 

@@ -1,4 +1,4 @@
-module DayNineteen where
+module Day19 where
 import Challenge
 import qualified Data.Sequence as Seq
 

@@ -1,4 +1,4 @@
-module DayFourteen where
+module Day14 where
 
 import Challenge
 import Data.Word8

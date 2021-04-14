@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module DayFifteen where
+module Day15 where
 
 import qualified Text.Parsec as P
 import Utils

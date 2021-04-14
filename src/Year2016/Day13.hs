@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 
-module DayThirteen where
+module Day13 where
 
 import Challenge
 import Data.Bits

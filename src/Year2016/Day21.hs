@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module DayTwentyOne where
+module Day21 where
 import Challenge
 import Utils
 import Data.List (elemIndex, find)

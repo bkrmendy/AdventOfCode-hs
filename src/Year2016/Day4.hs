@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module DayFour where
+module Day4 where
 import Challenge
 
 import Text.Parsec as Parsec

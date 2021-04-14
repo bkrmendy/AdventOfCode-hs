@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module DayTwo where
+module Day2 where
 
 import Challenge
 

@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module DaySix where
+module Day6 where
 import Challenge
 import Utils (transpose)
 import Data.List (sort, group, sortOn)

@@ -1,4 +1,4 @@
-module DaySeventeen where
+module Day17 where
 import Prelude hiding (Left, Right)
 import Challenge
 import Data.Word8

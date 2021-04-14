@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module DayTwenty where
+module Day20 where
 import Challenge
 import Data.List (sortOn, find)
 import Text.Parsec hiding (lower, upper, count)

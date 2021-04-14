@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module DayTwentyThree where
+module Day23 where
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Challenge

@@ -1,4 +1,4 @@
-module DayEighteen where
+module Day18 where
 import Challenge
 
 newtype Row = Row { unRow :: String } deriving (Show)

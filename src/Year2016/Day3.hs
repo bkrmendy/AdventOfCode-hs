@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module DayThree where
+module Day3 where
 
 import Challenge
 import Utils (transpose)

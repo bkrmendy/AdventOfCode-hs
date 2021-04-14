@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module DaySeven where
+module Day7 where
 
 import Challenge
 

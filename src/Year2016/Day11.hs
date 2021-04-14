@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module DayEleven where
+module Day11 where
 import Prelude hiding (floor)
 import Data.List (nubBy)
 import qualified Data.Sequence as Seq

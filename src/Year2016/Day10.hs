@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module DayTen where
+module Day10 where
 
 import Challenge
 import Data.Map

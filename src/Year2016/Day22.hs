@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module DayTwentyTwo where
+module Day22 where
 import Text.Parsec
 import Challenge
 import qualified Data.Map as Map
