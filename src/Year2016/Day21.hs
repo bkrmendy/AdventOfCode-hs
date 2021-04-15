@@ -1,9 +1,9 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Day21 where
 import Challenge
 import Utils
 import Data.List (elemIndex, find)
 import Text.Parsec hiding (letter)
+import Data.Maybe (fromJust)
 
 data Scramble = SwapPosition Int Int
               | SwapLetter Char Char
@@ -21,7 +21,7 @@ scramble (RotateBasedOn a)  = rotateBasedOn a
 scramble (SwapLetter a b)   = swapLetter a b
 scramble (RotateRight a)    = rotateRight a
 scramble (RotateLeft a)     = rotateLeft a
-scramble (Reverse a b)      = reversee a b
+scramble (Reverse a b)      = reverses a b
 scramble (Move a b)         = move a b
 
 unscramble :: Scramble -> String -> String
@@ -43,11 +43,11 @@ swapPosition x y xs = replace x b $ replace y a xs
 swapLetter :: Char -> Char -> String -> String
 swapLetter a b xs = replace x b $ replace y a xs
   where
-    x = unsafeFromMaybe (elemIndex a xs)
-    y = unsafeFromMaybe (elemIndex b xs)
+    x = fromJust (elemIndex a xs)
+    y = fromJust (elemIndex b xs)
 
-reversee :: Int -> Int -> String -> String
-reversee from to xs = take from xs ++ reversed ++ drop (to + 1) xs
+reverses :: Int -> Int -> String -> String
+reverses from to xs = take from xs ++ reversed ++ drop (to + 1) xs
   where
     reversed = reverse (take (to - from + 1) $ drop from xs)
 
@@ -70,7 +70,7 @@ rotateRight n xs = drop l xs ++ take l xs
 rotateBasedOn :: Char -> String -> String
 rotateBasedOn letter xs = rotateRight amount xs
   where
-    ix = unsafeFromMaybe (elemIndex letter xs)
+    ix = fromJust (elemIndex letter xs)
     amount = 1 + ix + (if ix >= 4 then 1 else 0)
 
 pSwapPosition = SwapPosition <$> (string "swap position " *> int) <*> (string " with position "*> int)

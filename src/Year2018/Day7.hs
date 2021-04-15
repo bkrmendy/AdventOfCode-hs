@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Year2018.Day7 where
 import Challenge
 import Utils (parseLines, insertL, ensureE)

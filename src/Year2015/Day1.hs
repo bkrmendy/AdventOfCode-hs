@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2015.Day1 where
 import Challenge
 import Control.Monad.State

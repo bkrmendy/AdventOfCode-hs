@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2019.Day12 where
 import Prelude hiding (fst, snd)
 import Challenge

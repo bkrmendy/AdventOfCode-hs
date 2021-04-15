@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Day12 where
 import Challenge
 import Data.Map

@@ -1,9 +1,8 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Day23 where
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Challenge
-import Utils
+import Data.Maybe (fromJust)
 
 data Operand = Immediate Int | Register Char | Missing deriving (Show, Eq)
 data Opcode = Cpy | Inc | Dec | Tgl | Jnz | Mul | Add deriving (Show)
@@ -37,7 +36,7 @@ mkInstruction line = parse' pieces
       | otherwise = Immediate (read part :: Int)
 
 inc :: Registers -> Char -> (Int -> Int) -> Registers
-inc regs reg f = Map.insert reg (f $ unsafeFromMaybe $ Map.lookup reg regs) regs
+inc regs reg f = Map.insert reg (f $ fromJust $ Map.lookup reg regs) regs
 
 set :: Registers -> Int -> Char -> Registers
 set regs val dest = Map.insert dest val regs
@@ -59,7 +58,7 @@ run ip registers instructions
   | otherwise = step (instructions !! ip)
   where
     value (Immediate i) = i
-    value (Register r) = unsafeFromMaybe $ Map.lookup r registers
+    value (Register r) = fromJust $ Map.lookup r registers
     step (Instruction Tgl _operand _) = run (succ ip) registers (tgl instructions (value _operand + ip))
     step (Instruction Inc (Register r) Missing) = run (succ ip) (inc registers r succ) instructions
     step (Instruction Inc (Register r) v) = run (succ ip) (inc registers r (+ value v)) instructions

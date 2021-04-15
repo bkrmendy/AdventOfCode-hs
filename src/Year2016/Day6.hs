@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Day6 where
 import Challenge
 import Utils (transpose)

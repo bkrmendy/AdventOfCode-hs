@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Day15 where
 
 import qualified Text.Parsec as P

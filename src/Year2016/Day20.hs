@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Day20 where
 import Challenge
 import Data.List (sortOn, find)

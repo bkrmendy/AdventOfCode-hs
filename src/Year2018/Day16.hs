@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2018.Day16 where
 import Challenge
 import Data.List (nub)

@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2015.Day3 where
 import Challenge
 import qualified Data.Map as Map

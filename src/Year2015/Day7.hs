@@ -101,8 +101,3 @@ instance Challenge Wires where
   partOne = show . evalState (evaluate "a")
   partTwo = show . evalState (evaluate "a") . tweak
   
-
-
-
-
-💪

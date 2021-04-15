@@ -1,9 +1,7 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2019.Day16 where
 import Challenge
 import Data.Char (digitToInt)
 import Data.Array as Array
-import Debug.Trace
 
 -- | Part 1
 

@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Day22 where
 import Text.Parsec
 import Challenge

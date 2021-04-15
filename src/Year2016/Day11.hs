@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Day11 where
 import Prelude hiding (floor)
 import Data.List (nubBy)

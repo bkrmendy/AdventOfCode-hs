@@ -1,7 +1,6 @@
 module Year2018.Day11 where
 import Challenge
-import Utils (sum2D)
-import Data.List (sortOn, intercalate)
+import Data.List (intercalate)
 import Data.Array as A
 
 powerLevel :: Int -> Int -> Int -> Int

@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Day9 where
 
 import Challenge
