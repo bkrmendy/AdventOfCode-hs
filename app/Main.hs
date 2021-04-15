@@ -2,7 +2,7 @@
 module Main where
 
 import Challenge
-import Year2015.Day6
+import Year2015.Day7
 import System.FilePath (takeDirectory, (</>))
 
 baseDir :: String
@@ -10,8 +10,8 @@ baseDir = takeDirectory $ takeDirectory __FILE__
 
 runChallenge :: IO ()
 runChallenge = do
-  input <- readFile $ baseDir </> "input/2015/6.txt"
-  let parsed = parse input :: [Instruction]
+  input <- readFile $ baseDir </> "input/2015/7.txt"
+  let parsed = parse input :: Wires
   putStrLn $ partOne parsed
   putStrLn $ partTwo parsed
 
