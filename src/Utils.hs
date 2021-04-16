@@ -28,6 +28,11 @@ subsequencesOfSize n xs = let l = length xs
    subsequencesBySize (x:xs) = let next = subsequencesBySize xs
                              in zipWith (++) ([]:next) (map (map (x:)) next ++ [[]])
 
+-- ^ https://stackoverflow.com/q/19772427
+subsets :: [Int] -> [[Int]]
+subsets []  = [[]]
+subsets (x:xs) = subsets xs ++ map (x:) (subsets xs)
+
 sum2D :: (Num a) => [[a]] -> a
 sum2D xs = sum [sum ys | ys <- xs]
 
