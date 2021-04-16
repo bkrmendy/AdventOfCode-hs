@@ -61,7 +61,7 @@ evaluate :: String -> State Wires Word16
 evaluate wire = do
   wires <- get
   val <- evaluateNode (wires Map.! wire)
-  modify $ Map.insert wire (Evaluated val)
+  modify $ Map.insert wire (Evaluated val) -- home made call-by-need
   return val
 
 -- | Parsing
