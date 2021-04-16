@@ -31,13 +31,13 @@ subsequencesOfSize n xs = let l = length xs
 sum2D :: (Num a) => [[a]] -> a
 sum2D xs = sum [sum ys | ys <- xs]
 
--- ^ https://stackoverflow.com/a/60380502
+updateAtIndex :: (Num a, Enum a, Eq a) => a -> (c -> c) -> [c] -> [c]
+updateAtIndex _ _ []       = []
+updateAtIndex 0 f (i:rest) = f i : rest
+updateAtIndex i f (e:rest) = e : updateAtIndex (i - 1) f rest
+
 replace :: (Num a, Enum a, Eq a) => a -> c -> [c] -> [c]
-replace index element = zipWith (curry transform) [0 ..]
-  where
-    transform (i, e)
-      | i == index = element
-      | otherwise = e
+replace index element = updateAtIndex index (const element)
 
 concatRep :: Int -> String -> String
 concatRep n = concat . replicate n
@@ -57,6 +57,9 @@ countWhere f = length . filter f
 
 count :: Eq a => a -> [a] -> Int
 count x = countWhere (x ==)
+
+maxIndex :: [Int] -> Int
+maxIndex list = Prelude.snd . maximum $ zip list [0..]
 
 -- | SET
 listify :: (Ord a) => (a -> Set.Set a -> Set.Set a) -> [a] -> Set.Set a -> Set.Set a
