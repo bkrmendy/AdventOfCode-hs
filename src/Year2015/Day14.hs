@@ -1,6 +1,6 @@
 module Year2015.Day14 where
 import Challenge
-import Utils (int, parseLines, maxIndex, updateAtIndex)
+import Utils (int, parseLines)
 import Text.Parsec hiding (State)
 import Control.Monad.State
 
