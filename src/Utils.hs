@@ -111,6 +111,9 @@ parseLines parser = parseI
       case Parsec.parse parser "" input of
         Left err -> error $ show err
         Right commands -> commands
+        
+parseL :: Parsec.Parsec String () a -> String -> [a]
+parseL p = parseLines (sepBy1 p newline)
 
 -- ^ adapted from https://stackoverflow.com/a/26961027
 fromBinaryString :: String -> Int
