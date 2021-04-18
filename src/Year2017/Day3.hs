@@ -17,50 +17,42 @@ import qualified Data.Array as A
 layerWidth :: Int -> Int
 layerWidth i = 2 * i - 1
 
-up :: Int -> [((Int, Int), Int)]
+up :: Int -> [(Int, Int)]
 up layer =
   let
     width = layerWidth layer
-    pWidth = layerWidth (layer - 1)
-    i = pWidth * pWidth
     (startingColumn, startingRow) = (layer - 1, - (layer - 1))
-  in [((startingColumn, startingRow + d), i + d) | d <- [1..width - 1]]
+  in [(startingColumn, startingRow + d) | d <- [1..width - 1]]
 
-left :: Int -> [((Int, Int), Int)]
+left :: Int -> [(Int, Int)]
 left layer =
   let
     width = layerWidth layer
-    pWidth = layerWidth (layer - 1)
-    i = pWidth * pWidth + width - 1
     (startingColumn, startingRow) = (layer - 1, layer - 1)
-  in [((startingColumn - d, startingRow), i + d) | d <- [1..width - 1]]
+  in [(startingColumn - d, startingRow) | d <- [1..width - 1]]
 
-down :: Int -> [((Int, Int), Int)]
+down :: Int -> [(Int, Int)]
 down layer =
   let
     width = layerWidth layer
-    pWidth = layerWidth (layer - 1)
-    i = pWidth * pWidth + (width - 1) * 2
     (startingColumn, startingRow) = (-(layer - 1), layer - 1)
-  in [((startingColumn, startingRow - d), i + d) | d <- [1..width - 1]]
+  in [(startingColumn, startingRow - d) | d <- [1..width - 1]]
 
-right :: Int -> [((Int, Int), Int)]
+right :: Int -> [(Int, Int)]
 right layer =
   let
     width = layerWidth layer
-    pWidth = layerWidth (layer - 1)
-    i = pWidth * pWidth + (width - 1) * 3
     (startingColumn, startingRow) = (-(layer - 1), -(layer - 1))
-  in [((startingColumn + d, startingRow), i + d) | d <- [1..width - 1]]
+  in [(startingColumn + d, startingRow) | d <- [1..width - 1]]
 
-coords :: Int -> [((Int, Int), Int)]
-coords 1     = [((0, 0), 1)]
+coords :: Int -> [(Int, Int)]
+coords 1     = [(0, 0)]
 coords layer = up layer <> left layer <> down layer <> right layer
 
 partOneI :: Int -> Int
 partOneI n = manhattan coord
   where
-    ((coord, _):_) = filter ((== n) . snd) (concatMap coords [1..])
+    ((coord, _):_) = filter ((== n) . snd) $ zip (concatMap coords [1..]) [1..]
 
 
 -- | TODO: part 2, I got rekt by this
