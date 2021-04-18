@@ -92,6 +92,9 @@ ensureE key m =
     Just _ -> m
 
 -- | PARSING
+ 
+readInt :: String -> Int
+readInt i = read i :: Int
 
 -- ^ https://www.schoolofhaskell.com/user/stevely/parsing-floats-with-parsec#parsing-integers-with-leading-sign
 int :: Parsec.Parsec String () Int
