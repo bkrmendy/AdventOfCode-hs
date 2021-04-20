@@ -101,6 +101,9 @@ ensureE key m =
 readInt :: String -> Int
 readInt i = read i :: Int
 
+word :: Parsec String () String
+word = many1 letter
+
 -- ^ https://www.schoolofhaskell.com/user/stevely/parsing-floats-with-parsec#parsing-integers-with-leading-sign
 int :: Parsec.Parsec String () Int
 int = rd <$> (plus <|> minus <|> number)
