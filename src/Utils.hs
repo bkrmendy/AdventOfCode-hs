@@ -3,7 +3,7 @@ module Utils where
 import Text.Parsec as Parsec
 import Control.Monad (zipWithM)
 import Data.Char (digitToInt)
-import Data.List (foldl')
+import Data.List (foldl', nub)
 import Data.Word8
 import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Base16 as B16
@@ -65,6 +65,11 @@ count x = countWhere (x ==)
 
 maxIndex :: [Int] -> Int
 maxIndex list = Prelude.snd . maximum $ zip list [0..]
+
+allEqual :: (Eq a) => [a] -> Bool
+allEqual as = case nub as of
+  [_] -> True
+  _ -> False 
 
 -- | SET
 listify :: (Ord a) => (a -> Set.Set a -> Set.Set a) -> [a] -> Set.Set a -> Set.Set a
