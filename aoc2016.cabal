@@ -27,7 +27,7 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2017.Day10
+      Year2017.Day13
       Intcode
   other-modules:
       Paths_aoc2016
@@ -55,7 +55,7 @@ library
       , monad-loops
       , word8
   default-language: Haskell2010
-  default-extensions: FlexibleInstances
+  default-extensions: FlexibleInstances, NegativeLiterals
 
 executable aoc2016-exe
   main-is: Main.hs
