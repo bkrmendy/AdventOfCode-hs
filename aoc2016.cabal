@@ -27,8 +27,9 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2017.Day13
       Intcode
+      KnotHash
+      Year2017.Day14
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
