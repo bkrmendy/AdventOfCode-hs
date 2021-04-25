@@ -7,7 +7,6 @@ import qualified  Data.Sequence as Seq
 import            Numeric      (readHex)
 import            Text.Printf  (printf)
 import            Control.Monad.State
-import            Debug.Trace
 
 -- ^ https://stackoverflow.com/a/48234931
 hexToBin :: Char -> String
