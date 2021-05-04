@@ -29,7 +29,7 @@ library
       Utils
       Intcode
       KnotHash
-      Year2017.Day20
+      Year2017.Day23
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
@@ -48,6 +48,7 @@ library
       , hashable
       , split
       , parsec
+      , primes
       , regex-tdfa
       , regex-tdfa-text
       , unordered-containers
