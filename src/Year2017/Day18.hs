@@ -9,13 +9,13 @@ import            Control.Monad.State.Lazy
 data Machine = Machine { _regs :: M.Map Char Int
                        , _ip :: Int
                        , _running :: Bool
+                       , _sent :: Int
                        }
 
 data ExecutionPt1 = ExPt1 { _machine :: Machine, _sounds :: [Int] }
 
 data ExecutionPt2 = ExPt2 { _machine1 :: Machine, _sounds1 :: [Int]
                           , _machine2 :: Machine, _sounds2 :: [Int]
-                          , _snd1 :: Int
                           }
 
 data Effect = Output Int | Input Char
@@ -48,7 +48,10 @@ value (Register  c) = do gets $ M.findWithDefault 0 c . _regs
 value (Immediate v) = return v
 
 sndI :: Operand -> State Machine Effect
-sndI f = Output <$> value f
+sndI f = do
+  modify' $ \m -> m { _sent = _sent m + 1}
+  val <- value f
+  return $ Output val
 
 set :: Char -> Operand -> State Machine ()
 set x y = do
@@ -126,7 +129,7 @@ processM1 :: Maybe Effect -> State ExecutionPt2 ()
 processM1 res =
   case res of
     Nothing           -> return ()
-    Just (Output o)   -> modify' (\ex -> ex { _sounds2 = _sounds2 ex ++ [o], _snd1 = _snd1 ex + 1 })
+    Just (Output o)   -> modify' $ \ex -> ex { _sounds2 = _sounds2 ex ++ [o] }
     Just (Input reg)  -> do
       sounds <- gets _sounds2
       m1 <- gets _machine1
@@ -140,7 +143,7 @@ processM2 :: Maybe Effect -> State ExecutionPt2 ()
 processM2 res =
   case res of
     Nothing           -> return ()
-    Just (Output o)   -> modify' (\ex -> ex { _sounds1 = _sounds1 ex ++ [o] })
+    Just (Output o)   -> modify' $ \ex -> ex { _sounds1 = _sounds1 ex ++ [o] }
     Just (Input reg)  -> do
       sounds <- gets _sounds1
       m2 <- gets _machine2
@@ -152,11 +155,13 @@ processM2 res =
 
 pt2 :: [Instr] -> State ExecutionPt2 Int
 pt2 is = do
+  -- ^ run machine 1
   machine1 <- gets _machine1
   (res1, nextMachine1) <- pure $ runState (step is) machine1
   modify' $ \ex -> ex { _machine1 = nextMachine1 }
   processM1 res1
   m1Running <- gets $ _running . _machine1
+  -- ^ run machine 2
   machine2 <- gets _machine2
   (res2, nextMachine2) <- pure $ runState (step is) machine2
   modify' $ \ex -> ex { _machine2 = nextMachine2 }
@@ -164,9 +169,9 @@ pt2 is = do
   m2Running <- gets $ _running . _machine2
   if m1Running || m2Running
     then pt2 is
-    else gets _snd1
+    else gets $ _sent . _machine2
 
 instance Challenge [Instr] where
   parse = parseL pInstr
-  partOne is = show $ evalState (pt1 is) (ExPt1 (Machine M.empty 0 True) [])
-  partTwo is = show $ evalState (pt2 is) (ExPt2 (Machine M.empty 0 True) [] (Machine M.empty 0 True) [] 0) -- TODO: result is 2x the actual result
+  partOne is = show $ evalState (pt1 is) (ExPt1 (Machine M.empty 0 True 0) [])
+  partTwo is = show $ evalState (pt2 is) (ExPt2 (Machine M.empty 0 True 0) [] (Machine M.empty 0 True 0) []) -- TODO: result is 2x the actual result
