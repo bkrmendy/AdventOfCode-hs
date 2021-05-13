@@ -48,8 +48,7 @@ value (Register  c) = do gets $ M.findWithDefault 0 c . _regs
 value (Immediate v) = return v
 
 sndI :: Operand -> State Machine Effect
-sndI f = do
-  Output <$> value f
+sndI f = Output <$> value f
 
 set :: Char -> Operand -> State Machine ()
 set x y = do
@@ -88,7 +87,7 @@ jgz x y = do
   offset <- value y
   condition <- value x
   ip <- gets _ip
-  delta <- pure $ if condition > 0 then offset else 1
+  let delta = if condition > 0 then offset else 1
   modify' $ \m -> m { _ip = ip + delta }
   
 advance :: State Machine ()
@@ -103,16 +102,15 @@ interpret (Mod x y) = modI x y  >> advance >> return Nothing
 interpret (Rcv o)   = advance   >> rcv o
 interpret (Jgz o c) = jgz o c              >> return Nothing
 
+halt :: State Machine ()
+halt = modify' $ \m -> m { _running = False }
+
 step :: [Instr] -> State Machine (Maybe Effect)
 step is = do
   ip <- gets _ip
-  if ip < length is
-    then do
-      i <- pure $ is !! ip
-      interpret i
-    else do
-      modify' $ \m -> m { _running = False }
-      return Nothing
+  if 0 <= ip && ip < length is
+    then interpret (is !! ip)
+    else halt >> return Nothing
 
 pt1 :: [Instr] -> State ExecutionPt1 Int
 pt1 is = do
@@ -125,32 +123,50 @@ pt1 is = do
     Just (Input _)    -> gets $ last . _sounds
   
 processM1 :: Maybe Effect -> State ExecutionPt2 ()
-processM1 res = do
+processM1 res =
   case res of
     Nothing           -> return ()
-    Just (Output o)   -> modify' (\ex -> ex { _sounds2 = _sounds2 ex ++ [o] })
-    Just (Input reg)  -> undefined
+    Just (Output o)   -> modify' (\ex -> ex { _sounds2 = _sounds2 ex ++ [o], _snd1 = _snd1 ex + 1 })
+    Just (Input reg)  -> do
+      sounds <- gets _sounds2
+      m1 <- gets _machine1
+      case sounds of
+        [] -> modify' $ \ex -> ex { _machine1 = execState halt m1 }
+        (lastSound:rest) -> do
+          nextMachine1 <- pure $ execState (store reg lastSound) m1
+          modify' $ \ex -> ex { _machine1 = nextMachine1, _sounds2 = rest }
 
 processM2 :: Maybe Effect -> State ExecutionPt2 ()
-processM2 = undefined
-    
+processM2 res =
+  case res of
+    Nothing           -> return ()
+    Just (Output o)   -> modify' (\ex -> ex { _sounds1 = _sounds1 ex ++ [o] })
+    Just (Input reg)  -> do
+      sounds <- gets _sounds1
+      m2 <- gets _machine2
+      case sounds of
+        [] -> modify' $ \ex -> ex { _machine2 = execState halt m2 }
+        (lastSound:rest) -> do
+          nextMachine2 <- pure $ execState (store reg lastSound) m2
+          modify' $ \ex -> ex { _machine2 = nextMachine2, _sounds1 = rest }
+
 pt2 :: [Instr] -> State ExecutionPt2 Int
 pt2 is = do
   machine1 <- gets _machine1
   (res1, nextMachine1) <- pure $ runState (step is) machine1
-  modify' $ \ex -> ex { _machine1 = nextMachine1 }      
-  m1Running <- pure $ (_running nextMachine1)
+  modify' $ \ex -> ex { _machine1 = nextMachine1 }
+  processM1 res1
+  m1Running <- gets $ _running . _machine1
   machine2 <- gets _machine2
   (res2, nextMachine2) <- pure $ runState (step is) machine2
-  modify' $ \ex -> ex { _machine2 = nextMachine2 }      
-  m2Running <- pure $ (_running nextMachine2)
-  if not m1Running && not m2Running
-    then gets _snd1
-    else do
-      processM1 res1
-      processM2 res2
-      pt2 is
+  modify' $ \ex -> ex { _machine2 = nextMachine2 }
+  processM2 res2
+  m2Running <- gets $ _running . _machine2
+  if m1Running || m2Running
+    then pt2 is
+    else gets _snd1
 
 instance Challenge [Instr] where
   parse = parseL pInstr
   partOne is = show $ evalState (pt1 is) (ExPt1 (Machine M.empty 0 True) [])
+  partTwo is = show $ evalState (pt2 is) (ExPt2 (Machine M.empty 0 True) [] (Machine M.empty 0 True) [] 0) -- TODO: result is 2x the actual result
