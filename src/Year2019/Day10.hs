@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2019.Day10 where
 import Challenge
 import Data.List (sortOn, groupBy)

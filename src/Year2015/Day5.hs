@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Year2015.Day5 where
 import Challenge
 import Data.List (isInfixOf, group, sort)

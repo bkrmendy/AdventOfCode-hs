@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2019.Day8 where
 import Challenge
 import Utils (count)

@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2018.Day10 where
 import Text.Parsec
 import Utils

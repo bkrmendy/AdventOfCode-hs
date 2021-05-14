@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2015.Day15 where
 import Data.List (nub, sort)
 import Utils
