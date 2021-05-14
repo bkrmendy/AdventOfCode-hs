@@ -1,10 +1,14 @@
+{-# LANGUAGE MultiWayIf #-}
 module Year2017.Day24 where
-import            Challenge
-import            Utils (readInt)
+import Challenge
+import Utils                      (readInt, select)
 
-import            Control.Monad.State
-import            Data.List.Split (splitOn)
-import qualified  Data.Set as S
+import Control.Applicative        (Alternative(..))
+import Control.Monad.Trans.State  (StateT(..), evalStateT)
+import Data.List.Split            (splitOn)
+import Data.Ord                   (Down(..))
+import Data.Tuple                 (swap)
+import Data.Bifunctor             (first)
 
 type Connector = (Int, Int)
 
@@ -12,42 +16,27 @@ connector :: String -> Connector
 connector line = (readInt a, readInt b)
   where [a, b] = splitOn "/" line
 
-newtype SearchState = SearchState {_cs :: S.Set Connector }
+-- | based on: https://blog.jle.im/entry/unique-sample-drawing-searches-with-list-and-statet.html
 
-outPin :: Int -> Connector -> Maybe Int
-outPin pi (i, o)
-  | pi == i = Just o
-  | pi == o = Just i
-  | otherwise = Nothing
-
-walk :: Int -> State SearchState [[Connector]]
-walk pinIn = do
-  cs <- gets _cs
-  forM (S.elems cs) $ \conn -> do
-    case outPin pinIn conn of
-      Nothing -> return [conn]
-      Just out -> do
-          modify' $ \s -> s { _cs = S.delete conn (_cs s)}
-          ps <- walk out
-          return $ concatMap (conn:) ps
-
-bridges :: State SearchState [[Connector]]
-bridges = do
-  (SearchState s) <- get
-  zs <- pure $ length [() | (0, _) <- S.elems s]
-  if zs < 1
-    then return []
-    else do
-      paths <- walk 0
-      (++) paths <$> bridges
-
-strength :: [Connector] -> Int
-strength = sum . concatMap go
-  where go (a, b) = [a, b]
+bridge :: Int -> StateT [Connector] [] Int
+bridge from = do
+  (x, y) <- StateT select
+  next <- if | x == from -> return y
+             | y == from -> return x
+             | otherwise -> empty
+  rest <- return 0
+       <|> bridge next
+  return $ x + y + rest
 
 pt1 :: [Connector] -> Int
-pt1 cs = maximum . map strength $ evalState bridges (SearchState $ S.fromList cs)
+pt1 = maximum . evalStateT (bridge 0)
+
+pt2 :: [Connector] -> Int
+pt2 = snd . maximum
+     . map (first (Down . length) . swap)
+     . runStateT (bridge 0)
 
 instance Challenge [Connector] where
   parse = map connector . lines
   partOne = show . pt1
+  partTwo = show . pt2

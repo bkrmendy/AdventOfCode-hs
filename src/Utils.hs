@@ -70,6 +70,10 @@ allEqual :: (Eq a) => [a] -> Bool
 allEqual as = case nub as of
   [_] -> True
   _ -> False 
+  
+select :: [a] -> [(a,[a])]
+select []     = []
+select (x:xs) = (x,xs) : [(y,x:ys) | (y,ys) <- select xs]
 
 -- | SET
 listify :: (Ord a) => (a -> Set.Set a -> Set.Set a) -> [a] -> Set.Set a -> Set.Set a
