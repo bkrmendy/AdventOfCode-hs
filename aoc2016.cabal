@@ -29,7 +29,7 @@ library
       Utils
       Intcode
       KnotHash
-      Year2017.Day21
+      Year2017.Day25
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
