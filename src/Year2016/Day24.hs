@@ -1,15 +1,11 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Day24 where
 import Challenge
-import Utils
+import Utils hiding (fst, snd)
 import Data.Char (isDigit, digitToInt)
-import Data.List (nub, delete, minimumBy, permutations)
-import Data.Function (on)
+import Data.List (permutations)
 import qualified Data.Map as Map
 import qualified Data.Sequence as Seq
 import qualified Data.Set as Set
-import qualified Data.Heap as Heap
 
 data Tile = Wall
           | Space

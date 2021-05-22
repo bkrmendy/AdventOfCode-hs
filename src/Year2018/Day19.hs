@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Year2018.Day19 where
 import Data.List.Split (splitOn)
 import Challenge

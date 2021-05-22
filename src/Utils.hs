@@ -3,7 +3,7 @@ module Utils where
 import Text.Parsec as Parsec
 import Control.Monad (zipWithM)
 import Data.Char (digitToInt)
-import Data.List (foldl')
+import Data.List (foldl', nub)
 import Data.Word8
 import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Base16 as B16
@@ -37,16 +37,21 @@ subsequencesOfSize n xs = let l = length xs
    subsequencesBySize (x:xs) = let next = subsequencesBySize xs
                              in zipWith (++) ([]:next) (map (map (x:)) next ++ [[]])
 
+-- ^ https://stackoverflow.com/q/19772427
+subsets :: [Int] -> [[Int]]
+subsets []  = [[]]
+subsets (x:xs) = subsets xs ++ map (x:) (subsets xs)
+
 sum2D :: (Num a) => [[a]] -> a
 sum2D xs = sum [sum ys | ys <- xs]
 
--- ^ https://stackoverflow.com/a/60380502
+updateAtIndex :: (Num a, Enum a, Eq a) => a -> (c -> c) -> [c] -> [c]
+updateAtIndex _ _ []       = []
+updateAtIndex 0 f (i:rest) = f i : rest
+updateAtIndex i f (e:rest) = e : updateAtIndex (i - 1) f rest
+
 replace :: (Num a, Enum a, Eq a) => a -> c -> [c] -> [c]
-replace index element = zipWith (curry transform) [0 ..]
-  where
-    transform (i, e)
-      | i == index = element
-      | otherwise = e
+replace index element = updateAtIndex index (const element)
 
 concatRep :: Int -> String -> String
 concatRep n = concat . replicate n
@@ -66,6 +71,18 @@ countWhere f = length . filter f
 
 count :: Eq a => a -> [a] -> Int
 count x = countWhere (x ==)
+
+maxIndex :: [Int] -> Int
+maxIndex list = Prelude.snd . maximum $ zip list [0..]
+
+allEqual :: (Eq a) => [a] -> Bool
+allEqual as = case nub as of
+  [_] -> True
+  _ -> False 
+  
+select :: [a] -> [(a,[a])]
+select []     = []
+select (x:xs) = (x,xs) : [(y,x:ys) | (y,ys) <- select xs]
 
 -- | SET
 listify :: (Ord a) => (a -> Set.Set a -> Set.Set a) -> [a] -> Set.Set a -> Set.Set a
@@ -93,6 +110,12 @@ ensureE key m =
     Just _ -> m
 
 -- | PARSING
+ 
+readInt :: String -> Int
+readInt i = read i :: Int
+
+word :: Parsec String () String
+word = many1 letter
 
 -- ^ https://www.schoolofhaskell.com/user/stevely/parsing-floats-with-parsec#parsing-integers-with-leading-sign
 int :: Parsec.Parsec String () Int
@@ -112,6 +135,9 @@ parseLines parser = parseI
       case Parsec.parse parser "" input of
         Left err -> error $ show err
         Right commands -> commands
+        
+parseL :: Parsec.Parsec String () a -> String -> [a]
+parseL p = parseLines (sepBy1 p newline)
 
 -- ^ adapted from https://stackoverflow.com/a/26961027
 fromBinaryString :: String -> Int
