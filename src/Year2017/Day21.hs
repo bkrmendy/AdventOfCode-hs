@@ -47,11 +47,6 @@ getNextSquare :: Book -> Grid -> [(Int, Int)] -> [(Int, Int)] -> [((Int, Int), C
 getNextSquare book grid fromCoords toCoords = zip toCoords (get fromCoords)
   where get = matchFromBook book . lookupFromGrid grid
 
-square :: (Int, Int)    -- ^ top left column, top left row
-       -> Int           -- ^ side length
-       -> [(Int, Int)]  -- ^ coords
-square (tc, tr) side = [(c, r) | c <- [tc..tc + side - 1], r <- [tr..tr + side - 1]]
-
 squares :: Int -- ^ side length of generated square
         -> Int -- ^ number of generated squares on side
         -> [[(Int, Int)]]
@@ -67,8 +62,8 @@ stepI book grid dFrom dTo = nextGrid
     squaresFrom = squares dFrom sideSquares -- ^ squares generated from the the from gird
     squaresTo = squares dTo sideSquares     -- ^ squares generated from the the to gird
     nextDim = sideSquares * dTo - 1         -- ^ next max dimension
-    nextsqrs = concatMap (uncurry (getNextSquare book grid)) (zip squaresFrom squaresTo)
-    nextGrid = A.array ((0, 0), (nextDim, nextDim)) nextsqrs
+    nextSquares = concatMap (uncurry (getNextSquare book grid)) (zip squaresFrom squaresTo)
+    nextGrid = A.array ((0, 0), (nextDim, nextDim)) nextSquares
 
 step :: Book -> Grid -> Grid
 step book grid = nextGrid
@@ -76,31 +71,6 @@ step book grid = nextGrid
     (_, (width, _)) = A.bounds grid
     nextGrid = if (even $ width + 1) then stepI book grid 2 3 else stepI book grid 3 4
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
 nPixelsOn :: Grid -> Int
 nPixelsOn = countWhere (== '#') . A.elems
   
