@@ -29,13 +29,11 @@ library
       Utils
       Intcode
       KnotHash
-      Year2017.Day24
+      Year2017.Day21
   other-modules:
       Paths_aoc2016
   hs-source-dirs:
       src/
-      src/Year2015/
-      src/Year2016/
   build-depends:
       base >=4.7 && <5
       , array
