@@ -1,7 +1,7 @@
 module Year2016.DaySeven where
 
 import Challenge
-import Utils
+import Utils (threes)
 import Text.Parsec as Parsec
 import Data.List (partition, isInfixOf)
 
@@ -78,9 +78,7 @@ isTriple triple =
 
 supportsSSL :: IPv7 -> Bool
 supportsSSL ip =
-  let
-    Address{hypernets = hypernets, supernets = supernets} = convert ip
-  in
+  let (Address hypernets supernets) = convert ip in
   or [ any (isInfixOf triple) hypernets | super <- supernets,
                                           triple <- map invert $ filter isTriple $ threes super]
 
