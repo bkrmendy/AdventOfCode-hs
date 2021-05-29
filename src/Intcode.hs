@@ -17,7 +17,6 @@ import Data.List.Split (splitOn)
 import qualified Data.HashMap.Strict as Map
 import Data.Digits
 import Control.Monad.State
-import Debug.Trace
 
 newtype Program = Program { unProgram :: [Int] }
 

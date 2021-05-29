@@ -1,12 +1,18 @@
+{-# LANGUAGE TupleSections #-}
 module Year2019.Day17 where
 import            Challenge
+import            Utils (replace)
 import qualified  Intcode as IC
 
 import qualified  Data.Array as A
-import            Data.Char (chr)
-import            Data.List (group, find)
-import            Data.List.Split (chunksOf)
-import            Data.Maybe (mapMaybe, fromJust, catMaybes)
+import            Data.Char (chr, ord)
+import            Data.Foldable (asum)
+import            Data.List (group, find, inits, unfoldr, stripPrefix, intercalate)
+import            Data.List.Split (chunksOf, splitOn)
+import            Data.Maybe (mapMaybe, fromJust, catMaybes, listToMaybe)
+import            Control.Applicative (empty)
+import            Control.Monad (guard)
+import            Control.Monad.State
 
 crossing :: [Char]
 crossing = concat [
@@ -38,62 +44,140 @@ stringToGrid raw = A.array ((0, 0), (height, width)) [((r, c), get r c) | r <- [
 mkGrid :: IC.Program -> Grid
 mkGrid = stringToGrid . filter (not . null) . lines . map chr . IC.executeCode []
 
-
-data Step = L | F | R deriving (Eq)
+data Step = L | F | R deriving (Eq, Show)
 data LookAhead = Clear | TurnLeft | TurnRight | Edge
 data Robot = Robot { _position :: (Int, Int), _direction :: (Int, Int) }
 
 edge :: Maybe LookAhead
 edge = Just Edge
 
-lookupGrid :: Grid -> (Int, Int) -> Maybe Char
-lookupGrid grid coords
-  | A.inRange (A.bounds grid) coords = Just $ grid A.! coords
+under :: Grid -> Robot -> Maybe Char
+under grid (Robot pos _)
+  | A.inRange (A.bounds grid) pos = Just $ grid A.! pos
   | otherwise = Nothing
 
 forward :: Robot -> Grid -> Maybe LookAhead
-forward = undefined
+forward robot grid = do
+  tile <- under grid (proceed robot)
+  if tile == '#'
+    then return Clear
+    else empty
 
 left :: Robot -> Grid -> Maybe LookAhead
-left = undefined
+left robot grid = do
+  tile <- under grid (proceed . turnLeft $ robot)
+  if tile == '#'
+   then return TurnLeft
+   else empty
 
 right :: Robot -> Grid -> Maybe LookAhead
-right = undefined
+right robot grid = do
+  tile <- under grid (proceed . turnRight $ robot)
+  if tile == '#'
+   then return TurnRight
+   else empty
 
 lookahead :: Robot -> Grid -> LookAhead
 lookahead robot grid = head $ catMaybes [forward robot grid, left robot grid, right robot grid, edge]
 
-turnLeft, turnRight :: (Int, Int) -> (Int, Int)
-turnLeft (dr, dc) = (dc, -dr)
-turnRight (dr, dc) = (-dc, dr)
+turnLeft, turnRight :: Robot -> Robot
+turnLeft (Robot pos (dr, dc)) = Robot pos (-dc, dr)
+turnRight (Robot pos (dr, dc)) = Robot pos (dc, -dr)
 
 proceed :: Robot -> Robot
 proceed (Robot (r, c) (dr, dc)) = Robot (r + dr, c + dc) (dr, dc)
 
 step :: Robot -> Grid -> [Step]
-step robot@(Robot pos dir) grid =
+step robot grid =
   case lookahead robot grid of
-    Clear -> F : step (Robot (move pos dir) dir) grid
-    TurnLeft -> L : step (Robot (move pos dir) (turnLeft dir)) grid
-    TurnRight -> R : step (Robot (move pos dir) (turnRight dir)) grid
+    Clear -> F : step (proceed robot) grid
+    TurnLeft -> L : F : step (proceed . turnLeft $ robot) grid
+    TurnRight -> R : F : step (proceed . turnRight $ robot) grid
     Edge -> []
-  where
-    move (r, c) (dr, dc) = (r + dr, c + dc)
 
 walk :: Grid -> [Step]
-walk grid = step (Robot pos (1, 0)) grid
+walk grid = step (Robot pos (-1, 0)) grid
   where pos = fst . fromJust . find ((== '^') . snd) $ A.assocs grid
-       
 
-compact :: [Step] -> [Either Int Int]
+-- | From here on, copied from
+-- https://github.com/mstksg/advent-of-code-2019/blob/df2b1c76ad26ad20306f705e923a09b14d538374/src/AOC/Challenge/Day17.hs#L97
+type CompressedStep = Either Int Int
+
+showCS :: CompressedStep -> String
+showCS (Left i) = "L," ++ show i
+showCS (Right i) = "R," ++ show i
+
+compact :: [Step] -> [CompressedStep]
 compact = mapMaybe go . chunksOf 2 . group
   where
     go [[L], steps] = Just $ Left (length steps)
     go [[R], steps] = Just $ Right (length steps)
     go _            = Nothing
 
+findProgs :: Eq a => [a] -> Maybe ([a], [a], [a])
+findProgs as = listToMaybe $ do
+  a <- validPrefix as
+
+  let withoutA = neSplitOn a as
+  b <- case withoutA of
+    [] -> empty
+    (bs:_) -> validPrefix bs
+
+  let withoutB = neSplitOn b =<< withoutA
+  c <- case withoutB of
+    [] -> empty
+    (cs:_) -> validPrefix cs
+
+  let withoutC = neSplitOn c =<< withoutB
+  guard $ null withoutC
+
+  pure (a, b, c)
+
+  where
+    validPrefix = take 5 . filter (not . null) . inits
+    neSplitOn x = filter (not . null) . splitOn x
+
+data Routine = A | B | C deriving (Show)
+
+chomp :: Eq a => [([a], b)] -> [a] -> [b]
+chomp progs = unfoldr go
+  where
+    go xs = asum
+      [ (r,) <$> stripPrefix prog xs
+      | (prog, r) <- progs
+      ]
+
+makeProgram :: Grid -> (String, String, String, String)
+makeProgram grid =
+  let
+    path = (compact . walk) grid
+    Just (a, b, c) = findProgs path
+  in (
+    intercalate "," $ chomp [(a,"A"),(b,"B"),(c,"C")] path,
+    intercalate "," $ showCS <$> a,
+    intercalate "," $ showCS <$> b,
+    intercalate "," $ showCS <$> c
+    )
+
+setMode :: Int -> IC.Program -> IC.Program
+setMode i (IC.Program program) = IC.Program $ replace 0 i program
+
+doState :: s -> State s c -> c
+doState = flip evalState
+
+toAscii :: String -> [Int]
+toAscii = map ord
+
+pt2 :: IC.Program -> Int
+pt2 program =
+  let grid = mkGrid program
+      (r, a, b, c) = makeProgram grid
+      moveProg = setMode 2 program
+  in doState (IC.initializeProcess moveProg []) $ do
+    IC.addProcessInputs (toAscii r ++ [10] ++ toAscii a ++ [10] ++ toAscii b ++ [10] ++ toAscii c ++ [10] ++ [ord 'n'] ++ [10])
+    last <$> IC.continueExecution
+
 instance Challenge IC.Program where
   parse = IC.fromString
   partOne = show . sum . map crossingWeight . windows . mkGrid
-  -- part 2 based on: https://github.com/mstksg/advent-of-code-2019/blob/master/reflections.md
-  partTwo = show . compact . walk . mkGrid
+  partTwo = show . pt2
