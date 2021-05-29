@@ -2,6 +2,7 @@
 module Main where
 
 import Challenge
+<<<<<<< HEAD
 import Intcode
 import Year2019.Day17
 import System.FilePath (takeDirectory, (</>))
