@@ -12,6 +12,9 @@ module Intcode (
   , hasShutDown
   , isRunning
   , erroredOut
+  , runMachine
+  , withMachine
+  , peekProcessInputs
 ) where
 import Data.List.Split (splitOn)
 import qualified Data.HashMap.Strict as Map
@@ -135,6 +138,9 @@ popProcessInput :: State ProcessState (Maybe Int)
 popProcessInput = state $ \s@ProcessState{ _inputs = inputStream } ->
     let (input, newInputs) = runState popInput inputStream
         in (input, s { _inputs = newInputs })
+        
+peekProcessInputs :: State ProcessState [Int]
+peekProcessInputs = gets $ unInputStream . _inputs
 
 initializeProcess :: Program -> [Int] -> ProcessState
 initializeProcess code initialInputs = ProcessState {
@@ -378,14 +384,17 @@ runUntilTerminated = do
       runUntilTerminated)
 
 runCode :: Program -> Int
-runCode code =
-  let initialState = initializeProcess code []
-  in evalState (do
-    runUntilTerminated
-    readProcessMemory 0
-  ) initialState
+runCode code = flip evalState (initializeProcess code []) $ do
+  runUntilTerminated
+  readProcessMemory 0
 
 executeCode :: [Int] -> Program -> [Int]
 executeCode initialInputs code =
     let initialState = initializeProcess code initialInputs
         in evalState continueExecution initialState
+        
+runMachine :: ProcessState -> State ProcessState () -> ProcessState
+runMachine p o = execState o p 
+
+withMachine :: ProcessState -> State ProcessState a -> a
+withMachine p o = evalState o p
