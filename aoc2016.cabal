@@ -27,7 +27,7 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2018.Day18
+      Year2018.Day9
       Intcode
       KnotHash
   other-modules:
