@@ -46,7 +46,7 @@ runMaze key2key st (MazeM m) = runIdentity s
 keyDistance :: (Char, Char) -> Key2Key -> Int
 keyDistance edge keys
   = case M.lookup edge keys of
-      Nothing -> error $ (show edge) ++ " not in key map!"
+      Nothing -> error $ show edge ++ " not in key map!"
       Just ds -> ds
 
 step :: S.Set Char -> S.Set KeyData -> Char -> KeyData -> MazeM Int
@@ -55,21 +55,27 @@ step keys keyData currentKey key = do
   let
     stepLength = keyDistance (currentKey, _code key) key2key
     nextKey = _code key
-    nextKeys = (S.insert (toUpper nextKey) keys)
-    nextKeySet = (S.delete key keyData)
+    nextKeys = S.insert (toUpper nextKey) keys
+    nextKeySet = S.delete key keyData
   dst <- walkz nextKeys nextKeySet nextKey
   return $ stepLength + dst
 
-availableKeys :: Char -> S.Set KeyData -> S.Set Char -> [KeyData]
-availableKeys cKey keyData keys = [ key | key <- S.elems keyData, (_deps key) `subSetOf` keys, (_code key) /= cKey ]
+availableKeys :: Char -> Key2Key -> S.Set KeyData -> S.Set Char -> [KeyData]
+availableKeys cKey key2key keyData keys = do
+  key <- S.elems keyData
+  guard $ _deps key `subSetOf` keys
+  guard $ _code key /= cKey
+  guard $ (cKey, _code key) `M.member` key2key
+  pure key
 
 walkz :: S.Set Char -> S.Set KeyData -> Char -> MazeM Int
 walkz keys keyData key = do
   cache <- get
-  if (M.member (key, keys) cache)
+  key2key <- ask
+  if M.member (key, keys) cache
     then return $ cache M.! (key, keys)
     else do
-      dst <- case availableKeys key keyData keys of
+      dst <- case availableKeys key key2key keyData keys of
           [] -> return 0
           aKeys -> minimum <$> mapM (step keys keyData key) aKeys
       modify' $ M.insert (key, keys) dst
@@ -138,17 +144,22 @@ gridFromString ls = A.array ((0, 0), (width, height)) [ ((w, h), charToTile (go 
   where
     (width, height) = (length (head ls) - 1, length ls - 1)
     go = \w h -> (ls !! h) !! w
-    
-kickoff :: Grid -> Int
-kickoff grid = runMaze key2key M.empty (walkz keys keyData '1')
+
+kickoff :: Char -> Grid -> Int
+kickoff start grid = runMaze key2key M.empty (walkz keys keyData start)
   where
     key2key = allKeyDistances grid
     keyData = allKeysList grid
-    keys = S.singleton '1'
+    keys = S.singleton start
+
+kickoff2 :: Grid -> Int
+kickoff2 grid = sum $ map (\k -> kickoff k grid) starts
+  where starts = [k | Key k <- A.elems grid, isDigit k]
     
 -- | In part two, map is updated manually
 -- | Reason: cannot be bothered to add a generic impl
 -- | TODO: add a generic impl
 instance Challenge Grid where
   parse = gridFromString . lines
-  partOne = show . kickoff
+--  partOne = show . kickoff '1'
+  partTwo = show . kickoff2

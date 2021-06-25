@@ -152,6 +152,12 @@ s :: (t1 -> t2 -> t3) -> (t1 -> t2) -> t1 -> t3
 s f g x = f x (g x)
 
 -- | MATH
+
+xor :: Bool -> Bool -> Bool
+True `xor` False = True
+False `xor` True = True
+_     `xor` _    = False
+
 -- ^ adapted from https://rosettacode.org/wiki/Chinese_remainder_theorem#Haskell
 chineseRemainder :: [Integer] -> [Integer] -> Maybe Integer
 chineseRemainder residues modulii =
