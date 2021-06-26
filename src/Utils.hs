@@ -158,6 +158,9 @@ True `xor` False = True
 False `xor` True = True
 _     `xor` _    = False
 
+mult :: (Num a) => [a] -> a
+mult = foldl' (*) 1
+
 -- ^ adapted from https://rosettacode.org/wiki/Chinese_remainder_theorem#Haskell
 chineseRemainder :: [Integer] -> [Integer] -> Maybe Integer
 chineseRemainder residues modulii =
