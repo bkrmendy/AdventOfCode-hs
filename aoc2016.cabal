@@ -27,7 +27,7 @@ library
   exposed-modules:
       Challenge
       Utils
-      Year2020.Day7
+      Year2020.Day8
       Intcode
       KnotHash
   other-modules:
