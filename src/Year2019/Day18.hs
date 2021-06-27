@@ -8,18 +8,20 @@ import qualified Data.Set as S
 import qualified Data.Array as A
 import qualified Data.Map.Strict as M
 import qualified Data.Sequence as Seq
-import           Data.Char (isLower, isUpper, isDigit, toUpper)
+import           Data.Char (isLower, isUpper, isDigit, toUpper, toLower)
 import           Data.Maybe (catMaybes)
-import           Control.Monad.State
+import           Control.Monad.State.Strict
 import           Control.Monad.Reader
 import           Control.Monad.Identity
+
+import Debug.Trace
 
 data Tile
   = Open
   | Door Char
   | Key Char
   | Wall
-  deriving Show
+  deriving (Show, Eq)
 
 type Coord = (Int, Int)
 type Grid = A.Array Coord Tile
@@ -80,7 +82,6 @@ walkz keys keyData key = do
           aKeys -> minimum <$> mapM (step keys keyData key) aKeys
       modify' $ M.insert (key, keys) dst
       return dst
-      
 
 lookup :: Grid -> (Int, Int) -> Maybe (Coord, Tile)
 lookup grid pos
@@ -113,7 +114,7 @@ updateDeps :: Coord -> Tile -> BFSStep (S.Set Char) -> BFSStep (S.Set Char)
 updateDeps coord t@(Door d) prev = BFSStep coord t (d `S.insert` (_info prev))
 updateDeps coord t          prev = BFSStep coord t (_info prev)
 
-bfs :: UpdateFn a -> Grid -> S.Set Coord -> [BFSStep a] ->  [(Char, a)]
+bfs :: UpdateFn a -> Grid -> S.Set Coord -> [BFSStep a] -> [(Char, a)]
 bfs _      _    _    [] = []
 bfs update grid seen (tile:rest) = trail tile ++ bfs update grid (S.insert (_coord tile) seen) (rest ++ do
   (c, t) <- neighbors grid (_coord tile)
@@ -127,8 +128,8 @@ allKeyDistances grid = M.fromList . concat $ do
   (coord, Key code) <- A.assocs grid
   pure $ map (\(c, d) -> ((code, c), d)) $ bfs updateDistance grid (S.singleton coord) [BFSStep coord (Key code) 0]
 
-allKeysList :: Grid -> KeyDeps
-allKeysList grid = S.fromList . map (\(c, d) -> KeyData c d) $ bfs updateDeps grid (S.singleton coord) [BFSStep coord (Key '1') (S.empty)]
+allKeysList :: Char -> Grid -> KeyDeps
+allKeysList c grid = S.fromList . map (\(c, d) -> KeyData c d) $ bfs updateDeps grid (S.singleton coord) [BFSStep coord (Key c) (S.empty)]
   where coord = head $ [c | (c, Key k) <- A.assocs grid, isDigit k]
 
 charToTile :: Char -> Tile
@@ -149,13 +150,31 @@ kickoff :: Char -> Grid -> Int
 kickoff start grid = runMaze key2key M.empty (walkz keys keyData start)
   where
     key2key = allKeyDistances grid
-    keyData = allKeysList grid
+    keyData = allKeysList start grid
     keys = S.singleton start
 
+scrubDoors :: Grid -> Grid
+scrubDoors grid = A.array (A.bounds grid) [(c, scrub t) | (c, t) <- A.assocs grid]
+  where scrub (Door c) = if Key (toLower c) `elem` A.elems grid then Door c else Open
+        scrub t        = t
+
+quarter :: ((Int, Int), (Int, Int)) -> Grid -> Grid
+quarter ((low, loh), (hiw, hih)) grid = scrubDoors . A.array bounds $ do
+  (ww, hh) <- [ (w, h) | w <- [low..hiw], h <- [loh..hih]]
+  pure ((ww - low, hh - loh), grid A.! (ww, hh))
+  where bounds = ((0, 0), (hiw - low, hih - loh))
+
+quarters :: Grid -> [Grid]
+quarters grid = [
+      quarter ((0, 0),    (40, 40)) grid -- top left
+    , quarter ((40, 0),   (80, 40)) grid -- top right
+    , quarter ((0, 40),   (40, 80)) grid -- bottom left
+    , quarter ((40, 40),  (80, 80)) grid -- bottom right
+  ]
+
 kickoff2 :: Grid -> Int
-kickoff2 grid = sum $ map (\k -> kickoff k grid) starts
-  where starts = [k | Key k <- A.elems grid, isDigit k]
-    
+kickoff2 grid = sum $! zipWith kickoff ['1', '2', '3', '4'] (quarters grid)
+
 -- | In part two, map is updated manually
 -- | Reason: cannot be bothered to add a generic impl
 -- | TODO: add a generic impl
