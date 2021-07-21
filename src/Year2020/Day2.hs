@@ -16,7 +16,6 @@ type Line = (Policy, String)
 line :: Parsec String () Line
 line = (,) <$> policy <*> many1 letter
 
-
 type ValidF = Policy -> String -> Bool
 
 valid1 :: ValidF

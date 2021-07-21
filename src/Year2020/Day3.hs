@@ -8,8 +8,6 @@ import Prelude hiding (lookup)
 import           Data.Array.Unboxed ((!))
 import qualified Data.Array.Unboxed as A
 
-import Debug.Trace
-
 type Grid = A.UArray (Int, Int) Char
 
 tree :: Char -> Int
