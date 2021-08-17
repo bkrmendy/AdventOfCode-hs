@@ -15,6 +15,7 @@ module Intcode (
   , runMachine
   , withMachine
   , peekProcessInputs
+  , stepMachine
 ) where
 import Data.List.Split (splitOn)
 import qualified Data.HashMap.Strict as Map
@@ -398,3 +399,6 @@ runMachine p o = execState o p
 
 withMachine :: ProcessState -> State ProcessState a -> a
 withMachine p o = evalState o p
+
+stepMachine :: ProcessState -> State ProcessState a -> (a, ProcessState)
+stepMachine p o = runState o p
