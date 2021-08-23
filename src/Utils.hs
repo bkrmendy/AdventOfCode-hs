@@ -9,7 +9,7 @@ import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Base16 as B16
 import qualified Crypto.Hash.MD5 as MD5
 import qualified Data.Set as Set
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 
 -- | LISTS
 notNull :: Foldable t => t a -> Bool
@@ -191,6 +191,9 @@ factorial n = n * factorial (pred n)
 manhattan :: (Int, Int) -> Int
 manhattan (a, b) = abs a + abs b
 
+manhattanDistance :: (Int, Int) -> (Int, Int) -> Int
+manhattanDistance (a, b) (a', b') = abs (a' - a) + abs (b' - b) 
+
 toInt :: Float -> Int
 toInt x = round x
 
@@ -211,3 +214,6 @@ snd (_, v, _) = v
 
 thd :: (a, a, a) -> a
 thd (_, _, v) = v
+  
+frequencies :: (Ord a) => [a] -> Map.Map a Int
+frequencies as = Map.fromListWith (+) [(a, 1) | a <- as] 
