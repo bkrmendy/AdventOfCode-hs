@@ -56,9 +56,7 @@ parsePrattRec currentPrec prec left tokens
 
 parsePratt :: Int -> Precedence -> [Token] -> (AST, [Token])
 parsePratt _           _    []      = error "Empty expression!"  
-parsePratt currentPrec prec tokens
-  | null rest                = (left, [])
-  | otherwise                 = parsePrattRec currentPrec prec left rest
+parsePratt currentPrec prec tokens  = parsePrattRec currentPrec prec left rest
   where (left, rest) = parseOperand prec tokens
 
 parseExpression :: Precedence -> [Token] -> AST
