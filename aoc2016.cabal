@@ -25,11 +25,12 @@ source-repository head
 
 library
   exposed-modules:
+      Year2020.Day24
       Challenge
       Utils
-      Year2020.Day21
       Intcode
       KnotHash
+      GameOfLife
   other-modules:
       Paths_aoc2016
   hs-source-dirs:

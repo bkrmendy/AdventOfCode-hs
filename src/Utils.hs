@@ -95,6 +95,10 @@ inserts = listify Set.insert
 deletes :: (Ord a) => [a] -> Set.Set a -> Set.Set a
 deletes = listify Set.delete
 
+toggle :: (Ord a) => a -> Set.Set a -> Set.Set a
+toggle x xs | x `Set.member` xs = Set.delete x xs
+toggle x xs = Set.insert x xs
+
 -- | MAP
 
 insertL :: (Ord k) => k -> a -> Map.Map k [a] -> Map.Map k [a]
@@ -216,4 +220,8 @@ thd :: (a, a, a) -> a
 thd (_, _, v) = v
   
 frequencies :: (Ord a) => [a] -> Map.Map a Int
-frequencies as = Map.fromListWith (+) [(a, 1) | a <- as] 
+frequencies as = Map.fromListWith (+) [(a, 1) | a <- as]
+
+composeN :: (a -> a) -> Int -> (a -> a)
+composeN f 1 = f
+composeN f n = f . composeN f (n - 1)  
