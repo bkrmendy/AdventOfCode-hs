@@ -25,7 +25,7 @@ source-repository head
 
 library
   exposed-modules:
-      Year2020.Day16
+      Year2020.Day19
       Challenge
       Utils
       Intcode

@@ -130,7 +130,11 @@ int = rd <$> (plus <|> minus <|> number)
         number = many1 digit
         
 integer :: Parsec.Parsec String () Integer
-integer = toInteger <$> int        
+integer = toInteger <$> int
+
+-- | actual space!!!
+space :: Parsec.Parsec String () Char
+space = Parsec.char ' '        
 
 parseLines :: Parsec.Parsec String () a -> String -> a
 parseLines parser = parseI
