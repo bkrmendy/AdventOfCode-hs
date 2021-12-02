@@ -1,8 +1,6 @@
 module Year2018.Day13 where
   
 import Data.List (cycle)
-import Control.Monad (guard)
-
 import qualified Data.Array.Unboxed as A
 
 type Map = A.Array (Int, Int) Char
@@ -16,11 +14,16 @@ data Cart = MkCart
   , _direction :: Direction
   , _steps :: [Turn]
   }
+  
+type Challenge = (Map, [Cart])
 
 turnLeft, turnRight, goStraight :: Turn
 turnLeft (MkDirection up left) = MkDirection (-left) up
 turnRight (MkDirection up left) = MkDirection left (-up)
 goStraight = id
+
+advance :: Direction -> Position -> Position
+advance (MkDirection up left) (MkPosition row column) = MkPosition (row + up) (column + left) 
 
 cart :: Position -> Char -> Maybe Cart  
 cart position dir = case dir of
@@ -47,14 +50,25 @@ collision carts = case collisions of
   (c:_) -> Just c
   where collisions = [_position c1 | c1 <- carts, c2 <- carts, _position c1 == _position c2]
   
-position :: Cart -> (Int, Int)
-position (MkCart (MkPosition row col) _ _) = (row, col)
+nextDirection :: Char -> [Turn] -> Direction -> ([Turn], Direction)
+nextDirection '+'  (turn:rest) direction = (rest, turn direction)
+nextDirection '\\' turns       direction = (turns, turnLeft direction)
+nextDirection '/'  turns       direction = (turns, turnRight direction)
+nextDirection _    turns       direction = (turns, direction)
   
---step :: Map -> Cart -> Cart
---step field (MkCart (MkPosition row col) (MkDirection up left) steps) = case tile of
---  '+' -> MkCart 
---  '/' -> 
---  where tile = field A.! (position cart)
+step :: Map -> Cart -> Cart
+step field (MkCart pos@(MkPosition row col) direction turns) = MkCart (advance newDirection pos) newDirection newTurns 
+  where tile = field A.! (row, col)
+        (newTurns, newDirection) = nextDirection tile turns direction 
+        
+simulate :: Map -> [Cart] -> Int -> Position
+simulate field carts turn = case collision carts of
+  Just po -> po
+  Nothing -> simulate field (map (step field) carts) (turn + 1)
+  
+
+        
+        
         
   
 

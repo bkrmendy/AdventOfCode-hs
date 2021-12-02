@@ -25,7 +25,7 @@ source-repository head
 
 library
   exposed-modules:
-      Year2021.Day1
+      Year2021.Day2
       Challenge
       Utils
       Intcode
