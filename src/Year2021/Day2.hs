@@ -36,6 +36,7 @@ solution (MkPosition f u) = f * u
 partOneI :: Position -> [Instruction] -> Int
 partOneI pos = solution . foldl' (flip move) pos
 
+partTwoI :: Position -> [Instruction] -> Int
 partTwoI pos = solution . snd . foldl' (flip aim) (0, pos)
 
 
