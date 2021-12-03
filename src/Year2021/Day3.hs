@@ -27,11 +27,14 @@ mostCommon bits = falses <= trues
 leastCommon bits = falses > trues
   where (falses, trues) = bitCount bits   
 
+type BitCriteria = [Bool] -> Bool
+
+powerRating :: BitCriteria -> [[Bool]] -> [Bool]
+powerRating c = map c . transpose 
+
 gamaRate, epsilonRate :: [[Bool]] -> [Bool]
-gamaRate diagnostics = map mostCommon flipped
-  where flipped = transpose diagnostics
-epsilonRate diagnostics = map leastCommon flipped
-  where flipped = transpose diagnostics
+gamaRate = powerRating mostCommon
+epsilonRate = powerRating leastCommon
 
 binaryToDec :: [Bool] -> Int
 binaryToDec = foldl' (\acc val -> 2 * acc + if val then 1 else 0) 0
@@ -45,8 +48,6 @@ bitsInPos :: Bool -> Int -> [[Bool]] -> [[Bool]]
 bitsInPos bit pos = filter go
   where go bits = (bits !! pos) == bit        
         
-type BitCriteria = [Bool] -> Bool
-
 criteria :: BitCriteria -> Int -> [[Bool]] -> [Bool]
 criteria _ _ [bit] = bit
 criteria c p bits = criteria c (p + 1) ac
@@ -58,9 +59,9 @@ oxygenGeneratorRating = criteria mostCommon 0
 co2ScrubberRating = criteria leastCommon 0 
         
 lifeSupportRating :: [[Bool]] -> Int
-lifeSupportRating bits = oxyRating * co2Rating
-  where oxyRating = binaryToDec $ oxygenGeneratorRating bits
-        co2Rating = binaryToDec $ co2ScrubberRating bits
+lifeSupportRating diagnostics = oxyRating * co2Rating
+  where oxyRating = binaryToDec $ oxygenGeneratorRating diagnostics
+        co2Rating = binaryToDec $ co2ScrubberRating diagnostics
 
 instance Challenge [[Bool]] where
   parse = parseI
