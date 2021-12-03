@@ -4,15 +4,15 @@ module Main where
 import System.FilePath (takeDirectory, (</>))
 
 import Challenge
-import Year2021.Day2
+import Year2021.Day3
 
 baseDir :: String
 baseDir = takeDirectory $ takeDirectory __FILE__
 
 runChallenge :: IO ()
 runChallenge = do
-  input <- readFile $ baseDir </> "input/2021/2.txt"
-  let parsed = parse input :: [Instruction]
+  input <- readFile $ baseDir </> "input/2021/3.txt"
+  let parsed = parse input :: [[Bool]]
   putStrLn $ partOne parsed
   putStrLn $ partTwo parsed
 

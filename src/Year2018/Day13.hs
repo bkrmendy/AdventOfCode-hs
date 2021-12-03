@@ -1,11 +1,16 @@
 module Year2018.Day13 where
   
-import Data.List (cycle)
+import Challenge
+import Data.List (cycle, foldl')
 import qualified Data.Array.Unboxed as A
 
 type Map = A.Array (Int, Int) Char
   
 data Position = MkPosition { _row :: Int, _column :: Int } deriving (Eq)
+
+instance Show Position where
+  show (MkPosition row column) = show column ++ "," ++ show row
+
 data Direction = MkDirection { _up :: Int, _left :: Int }
 type Turn = Direction -> Direction
 
@@ -15,8 +20,6 @@ data Cart = MkCart
   , _steps :: [Turn]
   }
   
-type Challenge = (Map, [Cart])
-
 turnLeft, turnRight, goStraight :: Turn
 turnLeft (MkDirection up left) = MkDirection (-left) up
 turnRight (MkDirection up left) = MkDirection left (-up)
@@ -41,8 +44,20 @@ replace '^' = '|'
 replace 'v' = '|'
 replace  c  = c
   
+collection :: [(((Int, Int), Char), [Cart])] -> (([((Int, Int), Char)], [Cart])
+collection = foldl' go ([], [])
+  where go :: ([((Int, Int), Char)], [Cart]) -> (((Int, Int), Char), [Cart]) -> ([((Int, Int), Char)], [Cart])
+        go (maps, carts) (mapThing, []) = (mapThing:maps, carts)
+        go (maps, carts) (mapThing, [c]) = (mapThing:maps, c:carts)
+  
 mkMap :: String -> (Map, [Cart])
-mkMap = undefined
+mkMap input = (A.array (nRows, nColumns) maps, carts)
+  where rows = lines input
+        (nRows, nColumns) = (length rows, length (head rows))
+        (maps, carts) = collection $ do
+          (row, rowIdx) <- zip rows [0..]
+          (column, columnIdx) <- zip row [0..]
+          pure ((rowIdx, columnIdx), replace column)
 
 collision :: [Cart] -> Maybe Position
 collision carts = case collisions of
@@ -61,13 +76,14 @@ step field (MkCart pos@(MkPosition row col) direction turns) = MkCart (advance n
   where tile = field A.! (row, col)
         (newTurns, newDirection) = nextDirection tile turns direction 
         
-simulate :: Map -> [Cart] -> Int -> Position
-simulate field carts turn = case collision carts of
+simulate :: Map -> [Cart] -> Position
+simulate field carts = case collision carts of
   Just po -> po
   Nothing -> simulate field (map (step field) carts) (turn + 1)
   
-
-        
+instance Challenge (Map, [Cart]) where
+  parse = mkMap
+  partOne = show . uncurry simulate
         
         
   
