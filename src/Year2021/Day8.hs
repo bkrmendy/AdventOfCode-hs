@@ -2,7 +2,7 @@ module Year2021.Day8 where
 
 import Challenge
   
-import Data.List (nub, sort)
+import Data.List (sort)
 import Data.List.Split (splitOn)
 import qualified Data.Map.Strict as M
 
@@ -24,9 +24,6 @@ select (x:xs) = (x, xs):rest
 
 isSubsetOf :: (Eq a) => [a] -> [a] -> Bool
 a `isSubsetOf` b = all (`elem` b) a
-
-union :: (Eq a) => [a] -> [a] -> [a]
-a `union` b = nub (a ++ b)
 
 segments :: String -> Int -> Bool
 segments a n = length a == n
