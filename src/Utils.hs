@@ -10,6 +10,7 @@ import qualified Data.ByteString.Base16 as B16
 import qualified Crypto.Hash.MD5 as MD5
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
+import qualified Data.Sequence as Seq
 
 -- | LISTS
 notNull :: Foldable t => t a -> Bool
@@ -228,4 +229,20 @@ frequencies as = Map.fromListWith (+) [(a, 1) | a <- as]
 
 composeN :: (a -> a) -> Int -> (a -> a)
 composeN f 1 = f
-composeN f n = f . composeN f (n - 1)  
+composeN f n = f . composeN f (n - 1)
+
+-- | SEARCH
+runBFS :: (Ord a) => (a -> [a]) -> [a] -> [a]
+runBFS neighbors roots = bfs neighbors (Seq.fromList roots) Set.empty 
+
+bfs
+  :: (Ord a)
+  => (a -> [a])
+  -> Seq.Seq a
+  -> Set.Set a
+  -> [a]
+bfs neighbors queue seen = case Seq.viewl queue of
+  Seq.EmptyL -> []
+  (x Seq.:< rest) -> if Set.member x seen
+    then bfs neighbors rest seen
+    else x:bfs neighbors (rest Seq.>< Seq.fromList (neighbors x)) (Set.insert x seen)
