@@ -4,7 +4,7 @@ import            Challenge
 import            Utils (runBFS)
 
 import            Data.Char (digitToInt)
-import            Data.List (sort)
+import            Data.List (sortOn)
 import qualified  Data.Array.Unboxed as A
 import            Control.Monad (guard)
 
@@ -52,8 +52,7 @@ basinSizeOf m start = length $ runBFS neighborsI [start]
 partTwoI :: Seafloor -> Int
 partTwoI m = product
             $ take 3
-            $ reverse
-            $ sort
+            $ sortOn negate
             $ map (basinSizeOf m) 
             $ lowPoints m 
 
