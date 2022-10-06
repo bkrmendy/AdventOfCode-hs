@@ -1,5 +1,6 @@
 .stack-work/
 .idea/
+dist-newstyle/
 out/
 stack.yaml.lock
-aoc2016.iml
+*.iml
