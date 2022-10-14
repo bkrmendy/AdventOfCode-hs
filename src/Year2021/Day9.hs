@@ -44,10 +44,7 @@ partOneI m = sum
 basinSizeOf :: Seafloor -> (Int, Int) -> Int
 basinSizeOf m start = length $ runBFS neighborsI [start] 
   where
-    neighborsI p = do
-      ns <- neighbors m p
-      guard $ m A.! ns /= 9
-      pure ns
+    neighborsI p = [ns | ns <- neighbors m p, m A.! ns /= 9]
 
 partTwoI :: Seafloor -> Int
 partTwoI m = product
