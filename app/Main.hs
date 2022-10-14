@@ -1,17 +1,12 @@
-{-# LANGUAGE CPP #-}
 module Main where
-
-import System.FilePath (takeDirectory, (</>))
-
+  
 import Challenge
 import Year2021.Day14
-
-baseDir :: String
-baseDir = takeDirectory $ takeDirectory __FILE__
+import AdventUtils (readInput)
 
 runChallenge :: IO ()
 runChallenge = do
-  input <- readFile $ baseDir </> "input/2021/14.txt"
+  input <- readInput "2021" "14"
   let parsed = parse input :: Polymerization
   putStrLn $ partOne parsed
   putStrLn $ partTwo parsed
